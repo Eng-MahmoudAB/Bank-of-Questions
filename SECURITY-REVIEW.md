@@ -1,28 +1,30 @@
-# Security review and required migration
+# Security review and migration status
 
-## Current application risks (confirmed from index.html)
+## Work prepared on this feature branch
 
-- The administrator password is stored in the client-side seed/settings object and checked in browser JavaScript. Anyone who can inspect the published page can inspect or bypass this check. This is not secure administrator authentication.
-- The browser writes the entire platform database document to Firestore using `fs.set({d: JSON.stringify(db)})`. Client-side validation cannot protect student records or admin data from a modified browser.
-- Student access uses six-digit activation codes stored in the same client-side database. These codes are not a substitute for authenticated server-side authorization.
-- Firebase web configuration is embedded in the page. That configuration is expected to be public; Firestore Security Rules and trusted server-side authorization must protect the data.
-- The repository currently has no `firestore.rules`, `firebase.json`, or Cloud Functions project files on the feature branch.
+- Removed the default administrator password from the browser seed and settings UI.
+- Added Firebase Authentication email/password sign-in for administrators.
+- Administrator Functions require both a verified email and the server-side `admin: true` custom claim. The UID is granted by a trusted Firebase Admin SDK script, never by browser code.
+- Added Admin SDK callable functions for reading and saving the legacy platform document. Inputs are structurally checked and limited to 900 KB.
+- Added Firestore rules that deny all client reads and writes. Cloud Functions use the Admin SDK, which bypasses Firestore rules; every callable therefore checks the administrator claim.
+- The static student workflow continues to use browser-local data. It does not receive privileged cloud access.
 
-## Important current state
+## Not complete yet
 
-The Firestore rules were manually changed in Firebase Console to deny all reads and writes. Keep them closed until a secure replacement is deployed. This means cloud synchronization is currently expected to fail; do not loosen the rules to `allow read, write: if true`.
+- Student activation, question delivery, answer submission, device binding, student profiles, and history have not yet been migrated to server-validated operations. Do not deploy this as a completed platform update.
+- The legacy shared JSON document still combines questions, answer keys, activation codes, and student records. It is accessible only to an authorized administrator through the new Functions, but it must be split before student cloud synchronization is restored.
+- The existing Firestore deny-all rules are expected to block direct client synchronization. This branch keeps that protection in place.
+- The custom-claim bootstrap, Functions, Rules, and browser sign-in have not been deployed to Firebase. Production behavior is unverified. App Check is not enforced yet.
+- Firebase Emulator security tests and browser end-to-end tests are still required.
 
-## Required secure architecture before restoring cloud access
+## Safe rollout sequence
 
-1. Enable Firebase Authentication and require sign-in for administrators.
-2. Assign the administrator role only from a trusted environment (Firebase Admin SDK / Cloud Functions custom claims). Never let the browser assign its own role or rely only on a UID embedded in JavaScript.
-3. Move privileged database operations behind authenticated Cloud Functions or another trusted backend. Validate every request and the caller's role on the server.
-4. Separate public/student-readable content from private student records and administrator data. Do not let student browsers replace the entire shared database document.
-5. Use Firestore rules that deny by default and permit only the exact authenticated operations needed by each role.
-6. Move media uploads to Firebase Storage with authenticated upload rules, size/type limits, and safe public delivery.
-7. Add audit logs, rate limits, backups, and recovery tests.
-8. Test student and administrator workflows with the Firebase Emulator Suite before publishing any rules.
+1. Back up the existing Firestore document and any browser-only data. Do not put backups in the public repository.
+2. Confirm Firestore region and Functions billing/region settings.
+3. Run emulator tests, including unauthenticated, ordinary-user, unverified-email, and admin cases.
+4. Assign the admin claim using the trusted bootstrap script and verified Firebase Auth account.
+5. Deploy Functions and deny-by-default rules only after reviewing the tested build. Expect the legacy client to have no cloud access until the remaining student migration ships.
+6. Migrate student flows to narrow server operations and separated collections, then retest before restoring student cloud access.
 
-## Do not deploy this feature branch as a security fix
+Never use `allow read, write: if true`, and never reintroduce client-side whole-database writes.
 
-The UI updates in this branch do not complete the backend security migration. In particular, the old password check and whole-document Firestore write must be replaced before the platform can be described as secure. The deny-all Firestore rules should remain in place until that migration is implemented and tested.

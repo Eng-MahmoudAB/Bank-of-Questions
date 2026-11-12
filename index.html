@@ -469,11 +469,11 @@ body.exam-active #v-quiz .qt,body.exam-active #v-quiz #opts,body.exam-active #v-
 <div class="f"><label>المدة بالدقائق</label><input class="input" type="number" id="examTimeMinutes" min="0" max="600" value="30"></div></div>
 <button class="btn ac sm" id="saveExamTime">💾 حفظ مدة المادة</button><div id="examTimeStatus" class="sub" style="margin:8px 0 16px"></div><hr>
 <div class="g2"><div class="f"><label>اسم المنصة</label><input class="input" id="eN"></div><div class="f"><label>اسم الأدمن</label><input class="input" id="eA"></div><div class="f"><label>رابط تيليجرام (أو @اسم_المستخدم)</label><input class="input" id="eT"></div>
-<div class="f"><label>رابط واتساب (أو الرقم)</label><input class="input" id="eW"></div><div class="f"><label>كلمة مرور الأدمن</label><div class="row"><input class="input" type="password" id="eP"><button type="button" class="btn" data-eye="eP" title="إظهار/إخفاء">👁️</button></div></div></div>
+<div class="f"><label>رابط واتساب (أو الرقم)</label><input class="input" id="eW"></div></div>
 <button class="btn pr sm" id="eS">💾 حفظ</button>
-<p class="sub" style="margin-top:16px">⚠️ نسخة تجريبية: البيانات محفوظة في هذا المتصفح فقط. اربطها بـ Firebase قبل الاستخدام الفعلي مع الطلاب.</p>
+<p class="sub" style="margin-top:16px">بيانات الأدمن تحفظ عبر خادم Firebase بعد اعتماد الحساب. بيانات الطلاب ما زالت محلية حتى اكتمال ترحيل واجهة الطلاب.</p>
 <hr><h3>🎨 المظهر</h3><p class="sub">غيّر لون المنصة والخلفية وصوت الإشعارات.</p><button class="btn ac sm" id="admTheme">🎨 تخصيص المنصة</button>
-<hr><h3>💾 النسخ الاحتياطي</h3><p class="sub">حمّل كل بيانات المنصة (الأكواد، الأسئلة، النتائج، الإعدادات) في ملف واحد لاستعادتها لاحقًا إذا مُسح المتصفح بالخطأ. ⚠️ الملف يحتوي كلمة مرور الأدمن وبيانات الطلاب، احتفظ به في مكان آمن.</p><div class="row" style="flex-wrap:wrap"><button class="btn pr sm" id="bkB">⬇️ تحميل نسخة احتياطية</button><label class="btn sm" style="cursor:pointer">⬆️ استعادة من ملف<input type="file" id="rsF" accept=".json,application/json" class="hide"></label></div><p class="sub" id="bkInfo" style="margin-top:8px"></p>
+<hr><h3>💾 النسخ الاحتياطي</h3><p class="sub">حمّل كل بيانات المنصة (الأكواد، الأسئلة، النتائج، الإعدادات) في ملف واحد لاستعادتها لاحقًا إذا مُسح المتصفح بالخطأ. ⚠️ الملف يحتوي بيانات الطلاب والأكواد، احتفظ به في مكان آمن ولا ترفعه لمستودع عام.</p><div class="row" style="flex-wrap:wrap"><button class="btn pr sm" id="bkB">⬇️ تحميل نسخة احتياطية</button><label class="btn sm" style="cursor:pointer">⬆️ استعادة من ملف<input type="file" id="rsF" accept=".json,application/json" class="hide"></label></div><p class="sub" id="bkInfo" style="margin-top:8px"></p>
 <hr><h3>🛡️ إعادة التعيين والخروج</h3><p class="sub">«إعادة تعيين الكل» يمسح كل بيانات المنصة المحفوظة في هذا المتصفح لبداية نظيفة عند حدوث تعارض مع بيانات قديمة. ننصح بتحميل نسخة احتياطية أولًا.</p><div class="row" style="flex-wrap:wrap"><button class="btn dg sm" id="rstAll">🗑️ إعادة تعيين الكل</button><button class="btn sm" id="fullOut">🚪 تسجيل الخروج الكامل</button></div>
 </div>
 </div></section>
@@ -489,19 +489,19 @@ body.exam-active #v-quiz .qt,body.exam-active #v-quiz #opts,body.exam-active #v-
 <div class="mod" id="mNt"><div class="card" style="max-width:460px;max-height:85vh;overflow:auto"><div class="qh"><h3>🔔 الإشعارات</h3><button class="btn sm" onclick="$('mNt').classList.remove('on')">✕</button></div><div id="ntList"></div></div></div>
 <div class="mod" id="mDev"><div class="card"><h3>📱 طلب تغيير الجهاز</h3><p class="sub">اكتب سبب التغيير وسيراجعه الأدمن.</p><div class="f"><textarea id="dr" placeholder="مثال: تعطل جهازي القديم"></textarea></div><div class="row"><button class="btn pr" style="flex:1" id="drGo">📨 إرسال</button><button class="btn" id="drX">إلغاء</button></div></div></div>
 <div class="mod" id="mDet"><div class="card" style="max-width:560px;max-height:90vh;overflow:auto"><div class="qh"><h3>تفاصيل الطالب</h3><button class="btn sm" onclick="$('mDet').classList.remove('on')">✕</button></div><div id="detBody"></div></div></div>
-<div class="mod" id="mAdm"><div class="card"><h3>🛡️ دخول الأدمن</h3><br><div class="f row"><input class="input" type="password" id="ap" placeholder="كلمة المرور"><button type="button" class="btn" data-eye="ap" title="إظهار/إخفاء">👁️</button></div><div class="row"><button class="btn pr" style="flex:1" id="apGo">دخول</button><button class="btn" id="apX">إلغاء</button></div></div></div>
+<div class="mod" id="mAdm"><div class="card"><h3>🛡️ دخول الأدمن</h3><br><div class="f"><input class="input" type="email" id="adminEmail" placeholder="البريد الإلكتروني" autocomplete="username"></div><div class="f"><input class="input" type="password" id="ap" placeholder="كلمة مرور Firebase Auth" autocomplete="current-password"></div><div class="row"><button class="btn pr" style="flex:1" id="apGo">دخول</button><button class="btn" id="apX">إلغاء</button></div></div></div>
 <footer>Developed by <a target="_blank" href="https://wa.me/@Ma_20082"><span id="ft">Mahmoud Diab</span></a></footer>
 <div id="antiCheatBanner" role="alertdialog" aria-live="assertive"><div class="inner"><h2>⚠️ تم رصد خروجك من الشاشة!</h2><p>سيتم تسجيل محاولة غش. أُوقف تحديث واجهة المؤقت حتى تعود إلى الامتحان، والوقت الفعلي يستمر في الاحتساب.</p><p id="antiCheatCount"></p><button class="btn" id="returnExam" style="background:#fff;color:#7f1d1d;margin-top:14px">العودة إلى الامتحان</button></div></div><div class="toast" id="toast"></div>
 <div id="printArea" aria-hidden="true"></div><button class="ib" id="focusX" title="خروج من وضع التركيز" aria-label="خروج من وضع التركيز">✕</button>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
 <script>
 const $=id=>document.getElementById(id),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const K='mdp_db_v2',KS='mdp_sess',KD='mdp_dev';
 let mem={};
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return mem[k]??null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){mem[k]=v}},del(k){try{localStorage.removeItem(k)}catch(e){delete mem[k]}}};
-const SEED=()=>({settings:{name:'Bank of Questions',admin:'Mahmoud Diab',pass:'Bank@2026',tg:'',wa:''},
+const SEED=()=>({settings:{name:'Bank of Questions',admin:'Mahmoud Diab',tg:'',wa:''},
 codes:[],
 subjects:[{id:1,name:'الأحياء',icon:'🧬'}],requests:[],exams:0,ann:null,
 questions:[
@@ -512,12 +512,13 @@ questions:[
 {id:5,subject:1,chapter:'الفصل الثاني: الوراثة',lesson:'DNA',text:'الرابطة التي تربط بين القاعدتين النيتروجينيتين المتقابلتين في DNA هي:',options:['تساهمية','هيدروجينية','أيونية','فوسفاتية ثنائية الإستر'],answer:'هيدروجينية',explanation:'A=T برابطتين هيدروجينيتين، و G≡C بثلاث روابط.'}]});
 let db;
 function load(){try{db=JSON.parse(ls.get(K))}catch(e){}if(!db||!db.codes)db=SEED();norm()}
-function norm(){db.codes=(db.codes||[]).filter(c=>c.code!=='123456');db.requests=db.requests||[];db.notifs=db.notifs||[];db.uploads=db.uploads||[];db.settings.examTimes=db.settings.examTimes||{};db.settings.admin=db.settings.admin||'Mahmoud Diab';db.codes.forEach(c=>{c.wrongBank=c.wrongBank||[];c.hist=c.hist||[];c.examLogs=c.examLogs||[]});db.questions.forEach(q=>{q.imageUrl=q.imageUrl||''});db.subjects.forEach(x=>x.chapters=x.chapters||[]);db.questions.forEach(q=>ens(q.subject,q.chapter,q.lesson))}
+function norm(){db.codes=(db.codes||[]).filter(c=>c.code!=='123456');db.requests=db.requests||[];db.notifs=db.notifs||[];db.uploads=db.uploads||[];db.settings.examTimes=db.settings.examTimes||{};db.settings.admin=db.settings.admin||'Mahmoud Diab';delete db.settings.pass;db.codes.forEach(c=>{c.wrongBank=c.wrongBank||[];c.hist=c.hist||[];c.examLogs=c.examLogs||[]});db.questions.forEach(q=>{q.imageUrl=q.imageUrl||''});db.subjects.forEach(x=>x.chapters=x.chapters||[]);db.questions.forEach(q=>ens(q.subject,q.chapter,q.lesson))}
 function ens(sid,ch,l){const x=db.subjects.find(y=>y.id===sid);if(!x||!ch)return;let c=x.chapters.find(y=>y.name===ch);if(!c)x.chapters.push(c={name:ch,lessons:[]});if(l&&!c.lessons.includes(l))c.lessons.push(l)}
 const FB={apiKey:"AIzaSyD_3jSeqKhU2stFCA53YYcAcUwOr6TMXeQ",authDomain:"bank-of-questions-c646f.firebaseapp.com",projectId:"bank-of-questions-c646f",storageBucket:"bank-of-questions-c646f.firebasestorage.app",messagingSenderId:"460598890350",appId:"1:460598890350:web:7da79d99f6449178fb7b7f"};
-let fs=null;try{if(FB&&window.firebase){firebase.initializeApp(FB);fs=firebase.firestore().collection('platform').doc('db')}}catch(e){}
-function save(){ls.set(K,JSON.stringify(db));if(fs&&!navigator.onLine)toast('⚠️ لا يوجد اتصال — لن تتزامن التغييرات مع السحابة الآن');if(fs)fs.set({d:JSON.stringify(db)}).catch(()=>{})}
-async function sync(){if(!fs)return;try{const x=await fs.get();if(x.exists){db=JSON.parse(x.data().d);norm();ls.set(K,JSON.stringify(db))}else save()}catch(e){}}
+let auth=null,functions=null,adminClaim=false,adminSaveQueue=Promise.resolve();try{if(FB&&window.firebase){firebase.initializeApp(FB);auth=firebase.auth();functions=firebase.app().functions('europe-west1')}}catch(e){}
+function adminPayload(){const value=JSON.parse(JSON.stringify(db));if(value.settings)delete value.settings.pass;return value}
+function save(){delete db.settings.pass;if(!adminClaim){ls.set(K,JSON.stringify(db));return}if(!functions){toast('خادم Firebase غير جاهز؛ لم يتم حفظ التغيير');return}const payload=adminPayload();adminSaveQueue=adminSaveQueue.catch(()=>{}).then(()=>functions.httpsCallable('adminSavePlatform')({platform:payload})).catch(e=>toast('تعذر حفظ بيانات السحابة: '+(e.message||'خطأ')))}
+async function sync(){if(!adminClaim||!functions)return;const r=await functions.httpsCallable('adminGetPlatform')();if(r.data&&r.data.platform){db=r.data.platform;norm()}else{norm();toast('لا توجد نسخة سحابية بعد؛ البيانات الحالية محلية حتى يحفظها الأدمن.')}}
 load();
 let dev=ls.get(KD);if(!dev){dev='d'+Math.random().toString(36).slice(2)+Date.now().toString(36);ls.set(KD,dev)}
 let reviewMode=false,revBk=null,asT=0,pend='',lv=0,me=null,sub=null,Q=[],idx=0,ans={},tmr=0,t0=0,examDeadline=0,examMonotonicDeadline=0,finishing=false,examStartedAt=0,examMonotonicStart=0,examSuspicious=0,examPaused=false,examAutoSubmitted=false,examFontSize=18,chartInstance=null,cfg={type:'all',cnt:10,ord:'r',inst:1};
@@ -647,10 +648,9 @@ $('wrong').innerHTML=wr.length?'<h3>📝 مراجعة الأسئلة التي ت
 $('retry').classList.toggle('hide',!wr.length);$('rev').classList.toggle('hide',!wr.length);weakNow(wr);if(lv)$('rm').textContent+=' · خرجت من الصفحة '+lv+' مرة ⚠️';if(mast)$('rm').textContent+=' · أتقنت '+mast+' من أسئلة بنك أخطائك ✅';const achA=ach(me.hist).filter(a=>a.ok&&!achB.includes(a.id));show('res');if(p>=85)confetti();if(achA.length)setTimeout(()=>{toast('🏅 إنجاز جديد: '+achA.map(a=>a.t).join(' + '));ding()},900)};
 $('again').onclick=()=>sub?openSetup(sub.id):go('home');
 // admin
-$('adm').onclick=()=>{$('ap').value='';$('mAdm').classList.add('on')};$('apX').onclick=()=>$('mAdm').classList.remove('on');
-$('apGo').onclick=async()=>{await sync();if($('ap').value===db.settings.pass){$('mAdm').classList.remove('on');renderAdmin();aTab('ov');aLock();applyTh();show('admin')}else toast('كلمة المرور خاطئة')};
-$('ap').onkeydown=e=>{if(e.key==='Enter')$('apGo').click()};
-
+$('adm').onclick=()=>{$('ap').value='';$('adminEmail').value='';$('mAdm').classList.add('on')};$('apX').onclick=()=>$('mAdm').classList.remove('on');
+$('apGo').onclick=async()=>{const email=$('adminEmail').value.trim(),password=$('ap').value;if(!auth||!email||!password)return toast('اكتب البريد وكلمة المرور');const b=$('apGo');b.disabled=true;try{const credential=await auth.signInWithEmailAndPassword(email,password),token=await credential.user.getIdTokenResult(true);if(token.claims.admin!==true||token.claims.email_verified!==true){adminClaim=false;await auth.signOut();return toast('هذا الحساب غير معتمد كأدمن ببريد موثق')}adminClaim=true;await sync();ls.del(K);$('mAdm').classList.remove('on');renderAdmin();aTab('ov');aLock();applyTh();show('admin')}catch(e){adminClaim=false;if(auth)await auth.signOut().catch(()=>{});toast('تعذر دخول الأدمن: '+(e.message||'خطأ'))}finally{b.disabled=false}};
+$('ap').onkeydown=e=>{if(e.key==='Enter')$('apGo').click()};$('adminEmail').onkeydown=e=>{if(e.key==='Enter')$('ap').focus()};
 function exportCheatingReport(){
  const rows=[['اسم الطالب','الكود','الشعبة','المادة','محاولات الخروج','التسليم الآلي','الدرجة','التاريخ']];
  db.codes.forEach(c=>(c.examLogs||[]).forEach(x=>{if((x.suspiciousExits||0)>0||x.autoSubmitted)rows.push([c.name,c.code,c.section,x.subject||'',x.suspiciousExits||0,x.autoSubmitted?'نعم':'لا',(x.score??'')+'/'+(x.total??''),new Date(x.submittedAt||x.startedAt).toLocaleString('ar-EG')])}));
@@ -679,7 +679,7 @@ $$('#slist [data-al]').forEach(b=>b.onclick=()=>{const[i,c]=b.dataset.al.split('
 $$('#slist [data-dc]').forEach(b=>b.onclick=()=>{const[i,c]=b.dataset.dc.split('|'),ch=S(i).chapters[c];if(!confirm('حذف الفصل وكل أسئلته؟'))return;db.questions=db.questions.filter(q=>!(q.subject==i&&q.chapter===ch.name));S(i).chapters.splice(+c,1);save();renderAdmin()});
 $$('#slist [data-dl]').forEach(b=>b.onclick=()=>{const[i,c,l]=b.dataset.dl.split('|'),ch=S(i).chapters[c],nm=ch.lessons[l];if(!confirm('حذف الدرس وكل أسئلته؟'))return;db.questions=db.questions.filter(q=>!(q.subject==i&&q.chapter===ch.name&&q.lesson===nm));ch.lessons.splice(+l,1);save();renderAdmin()});
 $$('#slist [data-s]').forEach(b=>b.onclick=()=>{if(!confirm('حذف المادة وأسئلتها؟'))return;const id=+b.dataset.s;db.subjects=db.subjects.filter(s=>s.id!==id);db.questions=db.questions.filter(q=>q.subject!==id);save();renderAdmin()});
-const s=db.settings;$('eN').value=s.name;$('eT').value=s.tg;$('eW').value=s.wa;$('eP').value=s.pass;$('eA').value=s.admin;$('adT').value=db.ann?db.ann.text:'';$('adVideo').value=db.ann?.video||'';$('adMode').value=db.ann?.mode||'image';qList();nList();renderOv();fillTree('mS','mCh','mLs','—');fillTree('upS','upC','upL','حسب الملف')}
+const s=db.settings;$('eN').value=s.name;$('eT').value=s.tg;$('eW').value=s.wa;$('eA').value=s.admin;$('adT').value=db.ann?db.ann.text:'';$('adVideo').value=db.ann?.video||'';$('adMode').value=db.ann?.mode||'image';qList();nList();renderOv();fillTree('mS','mCh','mLs','—');fillTree('upS','upC','upL','حسب الملف')}
 $('gen').onclick=()=>{let c;do{c=String(Math.floor(100000+Math.random()*900000))}while(db.codes.some(x=>x.code===c));$('nCode').value=c};
 $('mk').onclick=()=>{const c=$('nCode').value.trim(),n=$('nName').value.trim(),d=+$('nDays').value;
 if(!/^\d{6}$/.test(c))return toast('الكود 6 أرقام');if(!n)return toast('اكتب اسم الطالب');if(db.codes.some(x=>x.code===c))return toast('الكود مستخدم');
@@ -718,7 +718,7 @@ $('saveExamTime').onclick=()=>{
  db.settings.examTimes[key]=n;save();refreshExamTimeAdmin();toast('تم حفظ مدة الامتحان المحدد');
 };
 refreshExamTimeAdmin();
-$('eS').onclick=()=>{const s=db.settings,np=$('eP').value;if(np!==s.pass){if(np.length<8||!/\d/.test(np)||!/\D/.test(np))return toast('كلمة المرور ضعيفة: 8 خانات على الأقل بحروف وأرقام');s.pass=np}s.name=$('eN').value||s.name;s.admin=$('eA').value||s.admin;s.tg=$('eT').value.trim();s.wa=$('eW').value.trim();save();brand();toast('تم الحفظ')};
+$('eS').onclick=()=>{const s=db.settings;s.name=$('eN').value||s.name;s.admin=$('eA').value||s.admin;s.tg=$('eT').value.trim();s.wa=$('eW').value.trim();save();brand();toast('تم الحفظ')};
 $$('[data-eye]').forEach(b=>b.onclick=()=>{const i=$(b.dataset.eye),h=i.type==='password';i.type=h?'text':'password';b.textContent=h?'🙈':'👁️'});
 // profile
 function fd(t){return new Date(t).toLocaleDateString('ar-EG')}
@@ -970,8 +970,8 @@ if(!confirm('سيتم استبدال كل بيانات المنصة الحالي
 db=x;norm();if(me)me=db.codes.find(k=>k.code===me.code)||me;save();renderAdmin();bkInfo();$('rsF').value='';toast('تمت استعادة النسخة الاحتياطية')};r.readAsText(f)};
 function wipeAll(){ls.keys().filter(k=>k&&k.startsWith('mdp_')&&k!==KD).forEach(k=>ls.del(k));toast('تمت إعادة التعيين — جارٍ إعادة التحميل');setTimeout(()=>location.reload(),800)}
 $('rstAll').onclick=()=>{if(!confirm('⚠️ سيتم مسح كل بيانات المنصة المحفوظة في هذا المتصفح (الأكواد، الأسئلة، النتائج، الإعدادات). هل أنت متأكد؟'))return;if(prompt('للتأكيد اكتب كلمة: مسح')!=='مسح')return toast('تم إلغاء إعادة التعيين');wipeAll()};
-$('admOut').onclick=()=>{clearTimeout(alt);me?go('home'):show('login')};
-$('fullOut').onclick=()=>{clearTimeout(alt);$('out').click()};
+$('admOut').onclick=async()=>{clearTimeout(alt);adminClaim=false;if(auth)await auth.signOut().catch(()=>{});ls.del(K);me=null;load();go('login')};
+$('fullOut').onclick=()=>{clearTimeout(alt);adminClaim=false;if(auth)auth.signOut().catch(()=>{});ls.del(K);$('out').click()};
 $('admTheme').onclick=()=>{applyTh();$('mTh').classList.add('on')};
 bkInfo();
 // init
@@ -980,3 +980,4 @@ brand();{const sc0=ls.get(KS);if(sc0)show('skel')}
 </script>
 </body>
 </html>
+

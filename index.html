@@ -557,7 +557,7 @@ $('out').onclick=()=>{ls.del(KS);me=null;$('out').classList.add('hide');$('prof'
 // home
 function renderAd(){
 const a=db.ann;if(!a){$('adbox').innerHTML='';return}
-const m=String(a.video||'').match(/(?:youtu\.be\/|youtube\\.com\\/(?:watch\\?v=|embed\\/|shorts\\/))([A-Za-z0-9_-]{11})/);
+const m=String(a.video||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
 if(sessionStorage.getItem('mdp_ad_open')==='1'){
 $('adbox').innerHTML='<div class="ad-expanded"><button class="btn sm" id="adCollapse" style="float:left">✕</button><b>📢 '+esc(a.text||'إعلان')+'</b>'+(a.mode==='video'&&m?'<iframe src="https://www.youtube-nocookie.com/embed/'+m[1]+'" title="إعلان فيديو" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>':(a.img?'<img src="'+a.img+'" alt="إعلان">':''))+'</div>';
 $('adCollapse').onclick=()=>{sessionStorage.removeItem('mdp_ad_open');renderAd()};

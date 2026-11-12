@@ -15,7 +15,7 @@
 - The legacy shared JSON document still combines questions, answer keys, activation codes, and student records. It is accessible only to an authorized administrator through the new Functions, but it must be split before student cloud synchronization is restored.
 - The existing Firestore deny-all rules are expected to block direct client synchronization. This branch keeps that protection in place.
 - The custom-claim bootstrap, Functions, Rules, and browser sign-in have not been deployed to Firebase. Production behavior is unverified. App Check is not enforced yet.
-- Firebase Emulator security tests and browser end-to-end tests are still required.
+- Four callable unit tests pass with mocked Firebase services. The Firestore Rules emulator suite is added but could not run here because Java is unavailable. Browser end-to-end and live Firebase tests remain unverified.
 
 ## Safe rollout sequence
 

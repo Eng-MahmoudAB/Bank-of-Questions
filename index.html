@@ -58,8 +58,8 @@ h2.t{margin:6px 0 14px;font-size:20px}
 .sc .ic{font-size:34px}.sc h3{margin:6px 0 2px}.sc p{font-size:12px;color:var(--m)}
 .ad{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);border-radius:16px;padding:14px;margin-bottom:16px;display:flex;gap:12px;align-items:center}
 .ad img{width:70px;height:70px;border-radius:12px;object-fit:cover}
-.ad-strip{position:relative;border:1px solid var(--b);background:var(--s);border-radius:14px;padding:10px 42px 10px 12px;margin-bottom:14px;cursor:pointer;box-shadow:0 5px 18px -12px #000}
-.ad-strip .ad-close{position:absolute;right:8px;top:8px;width:25px;height:25px;border-radius:8px;background:var(--s2);font-size:14px}
+.ad-strip{position:relative;border:1px solid var(--b);background:var(--s);border-radius:14px;padding:10px 12px;margin-bottom:14px;cursor:pointer;box-shadow:0 5px 18px -12px #000}
+
 .ad-expanded{border:1px solid var(--b);background:var(--s);border-radius:16px;padding:12px;margin-bottom:14px}
 .ad-expanded img{display:block;max-width:100%;max-height:340px;object-fit:contain;border-radius:12px;margin:10px auto}
 .ad-expanded iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px}
@@ -576,19 +576,7 @@ $('go').onclick=async()=>{const b=$('go');if(b.disabled)return;const t=b.innerHT
 $('code').onkeydown=e=>{if(e.key==='Enter')$('go').click()};
 $('out').onclick=()=>{ls.del(KS);me=null;$('out').classList.add('hide');$('prof').classList.add('hide');$('bell').classList.add('hide');$('palb').classList.add('hide');resetTh();$('code').value='';$('code').dispatchEvent(new Event('input'));show('login')};
 // home
-function renderAd(){
-const a=db.ann;if(!a){$('adbox').innerHTML='';return}
-const m=String(a.video||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
-if(sessionStorage.getItem('mdp_ad_open')==='1'){
-$('adbox').innerHTML='<div class="ad-expanded"><button class="btn sm" id="adCollapse" style="float:left">✕</button><b>📢 '+esc(a.text||'إعلان')+'</b>'+(a.mode==='video'&&m?'<iframe src="https://www.youtube-nocookie.com/embed/'+m[1]+'" title="إعلان فيديو" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>':(a.img?'<img src="'+a.img+'" alt="إعلان">':''))+'</div>';
-$('adCollapse').onclick=()=>{sessionStorage.removeItem('mdp_ad_open');renderAd()};
-}else{
-$('adbox').innerHTML='<div class="ad-strip" id="adExpand"><button class="ad-close" id="adDismiss" aria-label="إغلاق">✕</button><b>📢 '+esc(a.text||'إعلان')+'</b><span style="color:var(--m);font-size:12px"> · اضغط لعرض الإعلان</span></div>';
-$('adExpand').onclick=()=>{sessionStorage.setItem('mdp_ad_open','1');renderAd()};
-$('adDismiss').onclick=e=>{e.stopPropagation();toast('الشريط الصغير يظل ظاهرًا أثناء استخدام المنصة')};
-}
-}
-
+let adTapAt=0; function renderAd(){ const a=db.ann;if(!a){$('adbox').innerHTML='';return} const m=String(a.video||'').match(/(?:youtu\\.be\\/|youtube\\.com\\/(?:watch\\?v=|embed\\/|shorts\\/))([A-Za-z0-9_-]{11})/); if(sessionStorage.getItem('mdp_ad_open')==='1'){ $('adbox').innerHTML='<div class="ad-expanded"><button class="btn sm" id="adCollapse" style="float:left" aria-label="تصغير الإعلان">✕</button><b>📢 '+esc(a.text||'إعلان')+'</b>'+(a.mode==='video'&&m?'<iframe src="https://www.youtube-nocookie.com/embed/'+m[1]+'" title="إعلان فيديو" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>':(a.img?'<img src="'+a.img+'" alt="إعلان">':''))+'</div>'; $('adCollapse').onclick=()=>{sessionStorage.removeItem('mdp_ad_open');renderAd()}; }else{ $('adbox').innerHTML='<div class="ad-strip" id="adExpand" role="button" tabindex="0" aria-label="اضغط مرتين لعرض الإعلان"><b>📢 '+esc(a.text||'إعلان')+'</b><span style="color:var(--m);font-size:12px"> · اضغط مرتين لعرض الإعلان</span></div>'; const strip=$('adExpand');strip.onclick=()=>{const now=Date.now();if(now-adTapAt<500){sessionStorage.setItem('mdp_ad_open','1');renderAd();adTapAt=0}else adTapAt=now};strip.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sessionStorage.setItem('mdp_ad_open','1');renderAd()}}; } }
 function visibleSubjectIdsFor(c){const all=(db.subjects||[]).map(s=>+s.id);if(!c||!Array.isArray(c.visibleSubjects))return all;const allowed=new Set(c.visibleSubjects.map(Number));return all.filter(id=>allowed.has(id))}
 function visibleSubjectsFor(c){const ids=new Set(visibleSubjectIdsFor(c));return (db.subjects||[]).filter(s=>ids.has(+s.id))}
 function visibleWrongQuestions(){const ids=new Set((me&&me.wr||[]).map(String)),allowed=new Set(visibleSubjectIdsFor(me));return db.questions.filter(q=>ids.has(String(q.id))&&allowed.has(+q.subject))}
@@ -596,7 +584,7 @@ function currentStudentAlertKey(kind){if(!me)return'';if(kind==='wrong'){const i
 function studentAlertItems(){if(!me)return[];const out=[],wrong=visibleWrongQuestions();if(wrong.length){const key=wrong.map(q=>String(q.id)).sort().join('|'),saved=me.alertState&&me.alertState.wrong,state=saved&&saved.key===key?saved:{key,status:'home',seen:false};out.push({kind:'wrong',key,state,label:'❌ أسئلة أخطأت فيها: '+wrong.length,action:'حلّها الآن'})}const resumeKey=currentStudentAlertKey('resume');if(resumeKey){const saved=me.alertState&&me.alertState.resume,state=saved&&saved.key===resumeKey?saved:{key:resumeKey,status:'home',seen:false};out.push({kind:'resume',key:resumeKey,state,label:'⏳ لديك امتحان غير مكتمل',action:'استكمال'})}return out}
 function moveStudentAlertToBell(kind){const item=studentAlertItems().find(x=>x.kind===kind);if(!item)return;me.alertState=me.alertState||{};me.alertState[kind]={key:item.key,status:'notification',seen:false};save();renderHome();updBell()}
 function dismissStudentAlert(kind){const item=studentAlertItems().find(x=>x.kind===kind);if(!item)return;me.alertState=me.alertState||{};me.alertState[kind]={key:item.key,status:'dismissed',seen:true};save();renderBellNotices();updBell()}
-function renderHomeStudentAlerts(){const items=studentAlertItems().filter(x=>x.state.status==='home');$('adbox').innerHTML+=items.map(x=>'<div class="ad" id="homeAlert-'+x.kind+'"><b>'+x.label+'</b><button class="btn '+(x.kind==='wrong'?'gd':'ac')+' sm" id="homeAlertAction-'+x.kind+'">'+x.action+'</button><button type="button" class="btn sm dg" id="homeAlertMove-'+x.kind+'" aria-label="نقل التنبيه إلى الإشعارات">✕</button></div>').join('');items.forEach(x=>{const a=$('homeAlertAction-'+x.kind),m=$('homeAlertMove-'+x.kind);if(a)a.onclick=()=>{if(x.kind==='resume')resume();else{const qs=visibleWrongQuestions();if(qs.length)begin(qs)}};if(m)m.onclick=()=>moveStudentAlertToBell(x.kind)})}
+function renderHomeStudentAlerts(){const priority={resume:0,wrong:1},items=studentAlertItems().filter(x=>x.state.status==='home').sort((a,b)=>priority[a.kind]-priority[b.kind]);$('adbox').innerHTML+=items.map(x=>'<div class="ad" id="homeAlert-'+x.kind+'"><b>'+x.label+'</b><button class="btn '+(x.kind==='wrong'?'gd':'ac')+' sm" id="homeAlertAction-'+x.kind+'">'+x.action+'</button><button type="button" class="btn sm dg" id="homeAlertMove-'+x.kind+'" aria-label="نقل التنبيه إلى الإشعارات">✕</button></div>').join('');items.forEach(x=>{const a=$('homeAlertAction-'+x.kind),m=$('homeAlertMove-'+x.kind);if(a)a.onclick=()=>{if(x.kind==='resume')resume();else{const qs=visibleWrongQuestions();if(qs.length)begin(qs)}};if(m)m.onclick=()=>moveStudentAlertToBell(x.kind)})}
 function renderHome(){
 $('wel').textContent='👋 أهلاً '+(me?me.name:'')+' في '+db.settings.name;
 const visibleIds=new Set(visibleSubjectIdsFor(me));$('s1').textContent=visibleIds.size;$('s2').textContent=db.questions.filter(q=>visibleIds.has(+q.subject)).length;$('s3').textContent=db.exams;

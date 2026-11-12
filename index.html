@@ -557,7 +557,7 @@ $('out').onclick=()=>{ls.del(KS);me=null;$('out').classList.add('hide');$('prof'
 // home
 function renderAd(){
 const a=db.ann;if(!a){$('adbox').innerHTML='';return}
-const m=String(a.video||'').match(/(?:youtu\\.be\\/|youtube\\.com\\/(?:watch\\?v=|embed\\/|shorts\\/))([A-Za-z0-9_-]{11})/);
+const m=String(a.video||'').match(/(?:youtu\.be\/|youtube\\.com\\/(?:watch\\?v=|embed\\/|shorts\\/))([A-Za-z0-9_-]{11})/);
 if(sessionStorage.getItem('mdp_ad_open')==='1'){
 $('adbox').innerHTML='<div class="ad-expanded"><button class="btn sm" id="adCollapse" style="float:left">✕</button><b>📢 '+esc(a.text||'إعلان')+'</b>'+(a.mode==='video'&&m?'<iframe src="https://www.youtube-nocookie.com/embed/'+m[1]+'" title="إعلان فيديو" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>':(a.img?'<img src="'+a.img+'" alt="إعلان">':''))+'</div>';
 $('adCollapse').onclick=()=>{sessionStorage.removeItem('mdp_ad_open');renderAd()};
@@ -691,7 +691,7 @@ $('upB').onclick=()=>{const f=$('upF').files[0];if(!f)return toast('اختر م�
 $('addQ').onclick=()=>{const o=['o1','o2','o3','o4'].map(i=>$(i).value.trim()).filter(Boolean);
 const old=editId;if(pushQ({text:$('mT').value.trim(),options:o,answer:$('mAns').value.trim(),explanation:$('mE').value.trim(),imageUrl:$('mImg').value.trim(),chapter:$('mCh').value.trim(),lesson:$('mLs').value.trim()},+$('mS').value)){if(old){const i=db.questions.findIndex(q=>q.id===old),nq=db.questions.pop();nq.id=old;if(i<0)db.questions.push(nq);else db.questions[i]=nq}save();endEdit();renderAdmin();toast(old?'تم التعديل':'تمت الإضافة')}else toast(!$('mT').value.trim()?'اكتب نص السؤال':o.length<2?'أضف اختيارين على الأقل':'الإجابة الصحيحة يجب أن تطابق أحد الاختيارات حرفيًا')};
 let adImg='';$('adI').onchange=()=>{const f=$('adI').files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,600/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);adImg=c.toDataURL('image/jpeg',.7);toast('تم تجهيز الصورة')};im.src=r.result};r.readAsDataURL(f)};
-$('adS').onclick=()=>{const t=$('adT').value.trim();if(!t)return toast('اكتب نص الإعلان');const video=$("adVideo").value.trim(),mode=$("adMode").value;if(!t&&!adImg&&!video)return toast("أضف نصًا أو صورة أو رابط فيديو");if(mode==="video"&&video&&!/(?:youtu\\.be\\/|youtube\\.com\\/(?:watch\\?v=|embed\\/|shorts\\/))[A-Za-z0-9_-]{11}/.test(video))return toast("رابط يوتيوب غير صالح");db.ann={text:t,img:adImg||"",video:mode==="video"?video:"",mode};save();toast("تم حفظ الإعلان")};
+$('adS').onclick=()=>{const t=$('adT').value.trim();if(!t)return toast('اكتب نص الإعلان');const video=$("adVideo").value.trim(),mode=$("adMode").value;if(!t&&!adImg&&!video)return toast("أضف نصًا أو صورة أو رابط فيديو");if(mode==="video"&&video&&!/(?:youtu\.be\/|youtube\\.com\\/(?:watch\\?v=|embed\\/|shorts\\/))[A-Za-z0-9_-]{11}/.test(video))return toast("رابط يوتيوب غير صالح");db.ann={text:t,img:adImg||"",video:mode==="video"?video:"",mode};save();toast("تم حفظ الإعلان")};
 $('adD').onclick=()=>{db.ann=null;adImg='';$('adT').value='';$('adVideo').value='';save();renderAd();toast('تم الحذف')};
 function refreshExamTimeAdmin(){
  const sel=$('examTimeSubject'),scope=$('examTimeScope'),ch=$('examTimeChapter'),lsel=$('examTimeLesson');

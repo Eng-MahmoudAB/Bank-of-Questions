@@ -7,13 +7,14 @@ The site is hosted as a static GitHub Pages application. Firebase backend files 
 - Administrators sign in with Firebase Authentication. Admin Functions also require a verified email and the server-assigned `admin` custom claim.
 - Students redeem their six-digit activation code through a callable Function. The server checks expiry, disabled status, device binding, and rate limits before issuing a scoped Firebase custom token.
 - Student functions return only that student's record. Exam scores and history are computed and stored by the server; students cannot submit or replace the shared database document.
-- App Check is enforced on all student functions. The browser has a placeholder for the public reCAPTCHA v3 site key; student sign-in stays disabled until this key is configured.
+- App Check is enforced on all student functions. The browser initializes the reCAPTCHA v3 provider with the site key supplied for the Firebase web app.
+- The page sends a `noindex` directive to search engines. This discourages search indexing but does not make a public GitHub Pages URL private; authentication and server authorization remain required.
 - Firestore client rules deny all direct reads and writes. Trusted Functions use the Admin SDK and check the caller's role.
 - The server still stores the platform in the legacy single Firestore document. Its 900 KB application limit and concurrent-write contention mean a physical split into content and per-student documents remains before a high-volume production rollout.
 
 ## Firebase setup for a maintainer
 
-1. In Firebase App Check, register the web app with a reCAPTCHA v3 provider. Send the **public site key** to the maintainer to replace the placeholder in `index.html`. Keep the reCAPTCHA secret key inside Google/Firebase Console; do not send or commit it. Monitor App Check metrics before enabling enforcement in the console.
+1. Verify the supplied reCAPTCHA v3 site key is registered for this Firebase web app and the published domain. Keep the reCAPTCHA secret key inside Google/Firebase Console; do not send or commit it. Monitor App Check metrics before production use.
 2. Confirm the Firebase project is `bank-of-questions-c646f` and check the Firestore database region before selecting a Functions region. The current code uses `europe-west1`; verify this choice against the project location and expected latency.
 3. Cloud Functions deployment requires the Firebase project to use the Blaze pay-as-you-go plan. Set a budget alert before enabling it. Do not deploy without reviewing the billing impact.
 4. Install Firebase CLI and Functions dependencies, then run `npm install` in `functions/`.

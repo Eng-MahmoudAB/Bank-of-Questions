@@ -802,8 +802,8 @@ function renderUploadList(){
   const subject=db.subjects.find(x=>x.id===u.subject);
   return '<div class="bx"><b>'+esc(u.name||'ملف أسئلة')+'</b><p class="sub">'+esc(subject?subject.name:'مادة غير موجودة')+' · '+esc(u.chapter||'كل الفصول')+' · '+(u.count||0)+' سؤال · '+fd(u.createdAt||Date.now())+'</p><button class="btn sm" data-up-view="'+esc(u.id)+'">عرض / تعديل الأسئلة</button> <button class="btn sm ac" data-up-edit="'+esc(u.id)+'">تعديل بيانات الملف</button> <button class="btn sm dg" data-up-delete="'+esc(u.id)+'">حذف الملف</button></div>';
  }).join('')||'<p class="sub">لا توجد ملفات مرفوعة مسجلة بعد.</p>';
- $('#uploadList [data-up-view]').forEach(b=>b.onclick=()=>{uploadFilter=b.dataset.upView;const u=files.find(x=>x.id===uploadFilter);if(u)$('lfS').value=String(u.subject);qList();$('qlist').scrollIntoView({behavior:'smooth'})});
- $('#uploadList [data-up-edit]').forEach(b=>b.onclick=()=>{
+ $$('#uploadList [data-up-view]').forEach(b=>b.onclick=()=>{uploadFilter=b.dataset.upView;const u=files.find(x=>x.id===uploadFilter);if(u)$('lfS').value=String(u.subject);qList();$('qlist').scrollIntoView({behavior:'smooth'})});
+ $$('#uploadList [data-up-edit]').forEach(b=>b.onclick=()=>{
   const u=files.find(x=>x.id===b.dataset.upEdit);if(!u)return;
   const name=prompt('اسم الملف',u.name||'');if(name===null)return;
   const chapter=prompt('الفصل لكل أسئلة الملف',u.chapter||'');if(chapter===null)return;
@@ -813,7 +813,7 @@ function renderUploadList(){
   db.questions.filter(q=>q.uploadId===u.id).forEach(q=>{q.chapter=u.chapter;q.lesson=u.lesson});
   save();renderUploadList();if(uploadFilter===u.id)qList();toast('تم تعديل الملف وأسئلته')
  });
- $('#uploadList [data-up-delete]').forEach(b=>b.onclick=()=>{
+ $$('#uploadList [data-up-delete]').forEach(b=>b.onclick=()=>{
   const u=files.find(x=>x.id===b.dataset.upDelete);if(!u)return;
   const count=db.questions.filter(q=>q.uploadId===u.id).length;
   if(!confirm('سيتم حذف الملف و'+count+' سؤال من بنك الأسئلة. سجلات الاختبارات السابقة ستظل محفوظة. هل تريد المتابعة؟'))return;

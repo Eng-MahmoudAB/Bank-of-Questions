@@ -57,6 +57,11 @@ h2.t{margin:6px 0 14px;font-size:20px}
 .sc .ic{font-size:34px}.sc h3{margin:6px 0 2px}.sc p{font-size:12px;color:var(--m)}
 .ad{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);border-radius:16px;padding:14px;margin-bottom:16px;display:flex;gap:12px;align-items:center}
 .ad img{width:70px;height:70px;border-radius:12px;object-fit:cover}
+.ad-strip{position:relative;border:1px solid var(--b);background:var(--s);border-radius:14px;padding:10px 42px 10px 12px;margin-bottom:14px;cursor:pointer;box-shadow:0 5px 18px -12px #000}
+.ad-strip .ad-close{position:absolute;right:8px;top:8px;width:25px;height:25px;border-radius:8px;background:var(--s2);font-size:14px}
+.ad-expanded{border:1px solid var(--b);background:var(--s);border-radius:16px;padding:12px;margin-bottom:14px}
+.ad-expanded img{display:block;max-width:100%;max-height:340px;object-fit:contain;border-radius:12px;margin:10px auto}
+.ad-expanded iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px}
 .f{margin-bottom:14px}.f label{display:block;font-size:13px;font-weight:600;color:var(--t2);margin-bottom:6px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{padding:7px 14px;border-radius:10px;background:var(--s2);border:1.5px solid var(--b);font-size:13px;font-weight:600}
@@ -451,7 +456,7 @@ body.exam-active #v-quiz .qt,body.exam-active #v-quiz #opts,body.exam-active #v-
 <div class="ap" data-t="ms"><h3>🔔 إشعارات الطلاب</h3><br><div class="f"><textarea id="nT" placeholder="اكتب نص الإشعار الذي سيصل للطلاب..."></textarea></div><button class="btn pr sm" id="nSend">📣 إرسال للطلاب</button><div id="nList" style="margin-top:12px"></div>
 <hr><h3>📢 إعلان</h3><br>
 <div class="f"><textarea id="adT" placeholder="نص الإعلان"></textarea></div>
-<div class="f"><input type="file" id="adI" accept="image/*" class="input"></div>
+<div class="f"><label>نوع الإعلان</label><select id="adMode" class="input"><option value="image">صورة</option><option value="video">فيديو يوتيوب</option></select></div><div class="f"><label>رابط فيديو يوتيوب</label><input id="adVideo" class="input" type="url" placeholder="https://youtu.be/..."></div><div class="f"><label>صورة الإعلان</label><input type="file" id="adI" accept="image/*" class="input"></div>
 <div class="row"><button class="btn pr sm" id="adS">💾 حفظ</button><button class="btn dg sm" id="adD">🗑️ حذف</button></div>
 </div>
 <div class="ap" data-t="st"><h3>⚙️ الإعدادات</h3><br>
@@ -550,11 +555,23 @@ $('go').onclick=async()=>{const b=$('go');if(b.disabled)return;const t=b.innerHT
 $('code').onkeydown=e=>{if(e.key==='Enter')$('go').click()};
 $('out').onclick=()=>{ls.del(KS);me=null;$('out').classList.add('hide');$('prof').classList.add('hide');$('bell').classList.add('hide');$('palb').classList.add('hide');resetTh();$('code').value='';$('code').dispatchEvent(new Event('input'));show('login')};
 // home
+function renderAd(){
+const a=db.ann;if(!a){$('adbox').innerHTML='';return}
+const m=String(a.video||'').match(/(?:youtu\\.be\\/|youtube\\.com\\/(?:watch\\?v=|embed\\/|shorts\\/))([A-Za-z0-9_-]{11})/);
+if(sessionStorage.getItem('mdp_ad_open')==='1'){
+$('adbox').innerHTML='<div class="ad-expanded"><button class="btn sm" id="adCollapse" style="float:left">✕</button><b>📢 '+esc(a.text||'إعلان')+'</b>'+(a.mode==='video'&&m?'<iframe src="https://www.youtube-nocookie.com/embed/'+m[1]+'" title="إعلان فيديو" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>':(a.img?'<img src="'+a.img+'" alt="إعلان">':''))+'</div>';
+$('adCollapse').onclick=()=>{sessionStorage.removeItem('mdp_ad_open');renderAd()};
+}else{
+$('adbox').innerHTML='<div class="ad-strip" id="adExpand"><button class="ad-close" id="adDismiss" aria-label="إغلاق">✕</button><b>📢 '+esc(a.text||'إعلان')+'</b><span style="color:var(--m);font-size:12px"> · اضغط لعرض الإعلان</span></div>';
+$('adExpand').onclick=()=>{sessionStorage.setItem('mdp_ad_open','1');renderAd()};
+$('adDismiss').onclick=e=>{e.stopPropagation();toast('الشريط الصغير يظل ظاهرًا أثناء استخدام المنصة')};
+}
+}
 function renderHome(){
 $('wel').textContent='👋 أهلاً '+(me?me.name:'')+' في '+db.settings.name;
 $('s1').textContent=db.subjects.length;$('s2').textContent=db.questions.length;$('s3').textContent=db.exams;
 $('s4').textContent=me?Math.max(0,Math.ceil((me.end-Date.now())/864e5)):0;
-const a=db.ann;$('adbox').innerHTML=a?`<div class="ad">${a.img?`<img src="${a.img}" alt="">`:''}<div><b style="color:var(--g)">📢 إعلان</b><p>${esc(a.text)}</p></div></div>`:'';
+renderAd();
 const rs=me&&ls.get('mdp_res_'+me.code),nw=me?(me.wr||[]).length:0,hideResume=me&&sessionStorage.getItem('mdp_hide_resume_'+me.code)==='1';$('adbox').innerHTML+=(rs&&!hideResume?'<div class="ad" id="resumeBanner"><b>⏳ لديك اختبار غير مكتمل</b><button class="btn ac sm" id="resume">▶ استكمال</button><button class="btn sm" id="hideResume" aria-label="إخفاء">✕</button></div>':'')+(nw?`<div class="ad"><b>🔁 أسئلة أخطأت فيها: ${nw}</b><button class="btn gd sm" id="retryAll">حلّها الآن</button></div>`:'');
 if($('resume'))$('resume').onclick=resume;if($('hideResume'))$('hideResume').onclick=()=>{sessionStorage.setItem('mdp_hide_resume_'+me.code,'1');$('resumeBanner')?.remove()};if($('retryAll'))$('retryAll').onclick=()=>begin(db.questions.filter(q=>(me.wr||[]).includes(q.id)));
 $('subs').innerHTML=db.subjects.map(s=>{const n=db.questions.filter(q=>q.subject===s.id).length;return `<div class="sc" data-id="${s.id}"><div class="ic">${esc(s.icon)}</div><h3>${esc(s.name)}</h3><p>${n} سؤال</p></div>`}).join('')||'<p class="sub">لا توجد مواد بعد.</p>';
@@ -662,7 +679,7 @@ $$('#slist [data-al]').forEach(b=>b.onclick=()=>{const[i,c]=b.dataset.al.split('
 $$('#slist [data-dc]').forEach(b=>b.onclick=()=>{const[i,c]=b.dataset.dc.split('|'),ch=S(i).chapters[c];if(!confirm('حذف الفصل وكل أسئلته؟'))return;db.questions=db.questions.filter(q=>!(q.subject==i&&q.chapter===ch.name));S(i).chapters.splice(+c,1);save();renderAdmin()});
 $$('#slist [data-dl]').forEach(b=>b.onclick=()=>{const[i,c,l]=b.dataset.dl.split('|'),ch=S(i).chapters[c],nm=ch.lessons[l];if(!confirm('حذف الدرس وكل أسئلته؟'))return;db.questions=db.questions.filter(q=>!(q.subject==i&&q.chapter===ch.name&&q.lesson===nm));ch.lessons.splice(+l,1);save();renderAdmin()});
 $$('#slist [data-s]').forEach(b=>b.onclick=()=>{if(!confirm('حذف المادة وأسئلتها؟'))return;const id=+b.dataset.s;db.subjects=db.subjects.filter(s=>s.id!==id);db.questions=db.questions.filter(q=>q.subject!==id);save();renderAdmin()});
-const s=db.settings;$('eN').value=s.name;$('eT').value=s.tg;$('eW').value=s.wa;$('eP').value=s.pass;$('eA').value=s.admin;$('adT').value=db.ann?db.ann.text:'';qList();nList();renderOv();fillTree('mS','mCh','mLs','—');fillTree('upS','upC','upL','حسب الملف')}
+const s=db.settings;$('eN').value=s.name;$('eT').value=s.tg;$('eW').value=s.wa;$('eP').value=s.pass;$('eA').value=s.admin;$('adT').value=db.ann?db.ann.text:'';$('adVideo').value=db.ann?.video||'';$('adMode').value=db.ann?.mode||'image';qList();nList();renderOv();fillTree('mS','mCh','mLs','—');fillTree('upS','upC','upL','حسب الملف')}
 $('gen').onclick=()=>{let c;do{c=String(Math.floor(100000+Math.random()*900000))}while(db.codes.some(x=>x.code===c));$('nCode').value=c};
 $('mk').onclick=()=>{const c=$('nCode').value.trim(),n=$('nName').value.trim(),d=+$('nDays').value;
 if(!/^\d{6}$/.test(c))return toast('الكود 6 أرقام');if(!n)return toast('اكتب اسم الطالب');if(db.codes.some(x=>x.code===c))return toast('الكود مستخدم');
@@ -674,8 +691,8 @@ $('upB').onclick=()=>{const f=$('upF').files[0];if(!f)return toast('اختر م�
 $('addQ').onclick=()=>{const o=['o1','o2','o3','o4'].map(i=>$(i).value.trim()).filter(Boolean);
 const old=editId;if(pushQ({text:$('mT').value.trim(),options:o,answer:$('mAns').value.trim(),explanation:$('mE').value.trim(),imageUrl:$('mImg').value.trim(),chapter:$('mCh').value.trim(),lesson:$('mLs').value.trim()},+$('mS').value)){if(old){const i=db.questions.findIndex(q=>q.id===old),nq=db.questions.pop();nq.id=old;if(i<0)db.questions.push(nq);else db.questions[i]=nq}save();endEdit();renderAdmin();toast(old?'تم التعديل':'تمت الإضافة')}else toast(!$('mT').value.trim()?'اكتب نص السؤال':o.length<2?'أضف اختيارين على الأقل':'الإجابة الصحيحة يجب أن تطابق أحد الاختيارات حرفيًا')};
 let adImg='';$('adI').onchange=()=>{const f=$('adI').files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,600/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);adImg=c.toDataURL('image/jpeg',.7);toast('تم تجهيز الصورة')};im.src=r.result};r.readAsDataURL(f)};
-$('adS').onclick=()=>{const t=$('adT').value.trim();if(!t)return toast('اكتب نص الإعلان');db.ann={text:t,img:adImg};save();toast('تم حفظ الإعلان')};
-$('adD').onclick=()=>{db.ann=null;adImg='';$('adT').value='';save();toast('تم الحذف')};
+$('adS').onclick=()=>{const t=$('adT').value.trim();if(!t)return toast('اكتب نص الإعلان');const video=$("adVideo").value.trim(),mode=$("adMode").value;if(!t&&!adImg&&!video)return toast("أضف نصًا أو صورة أو رابط فيديو");if(mode==="video"&&video&&!/(?:youtu\\.be\\/|youtube\\.com\\/(?:watch\\?v=|embed\\/|shorts\\/))[A-Za-z0-9_-]{11}/.test(video))return toast("رابط يوتيوب غير صالح");db.ann={text:t,img:adImg||"",video:mode==="video"?video:"",mode};save();toast("تم حفظ الإعلان")};
+$('adD').onclick=()=>{db.ann=null;adImg='';$('adT').value='';$('adVideo').value='';save();renderAd();toast('تم الحذف')};
 function refreshExamTimeAdmin(){
  const sel=$('examTimeSubject'),scope=$('examTimeScope'),ch=$('examTimeChapter'),lsel=$('examTimeLesson');
  if(!sel)return;

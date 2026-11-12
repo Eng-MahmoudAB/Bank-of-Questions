@@ -2,14 +2,14 @@
   "name": "bank-of-questions-functions",
   "private": true,
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "index.js",
   "scripts": {
     "check": "node --check index.js",
-    "serve": "firebase emulators:start --only auth,functions,firestore",
+    "serve": "firebase --config ../firebase.json --project demo-bank-of-questions emulators:start --only auth,functions,firestore",
     "test:unit": "node test/functions.test.js",
-    "test:rules": "firebase emulators:exec --only firestore \"node functions/test/firestore-rules.test.js\""
+    "test:rules": "firebase --config ../firebase.json --project demo-bank-of-questions emulators:exec --only firestore \"node test/firestore-rules.test.js\""
   },
   "dependencies": {
     "firebase-admin": "^13.0.0",

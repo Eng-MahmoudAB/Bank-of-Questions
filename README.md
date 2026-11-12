@@ -22,7 +22,7 @@ The site is currently hosted as a static GitHub Pages application. Firebase back
    ```
 
    This script uses Firebase Admin credentials and must never be run from the website or a public CI job. It checks that the account exists and its email is verified.
-6. Run local checks and Firebase Emulator tests before deployment. Deploying Functions and rules changes live access and requires a separate production review.
+6. Run `npm run check --prefix functions` and `npm run test:unit --prefix functions`. Run `npm run test:rules --prefix functions` with Java and Firebase CLI installed before deployment. Deploying Functions and rules changes live access and requires a separate production review.
 
 ## Existing platform and backups
 

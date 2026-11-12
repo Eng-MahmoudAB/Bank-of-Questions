@@ -452,7 +452,7 @@ body.exam-active #v-quiz .qt,body.exam-active #v-quiz #opts,body.exam-active #v-
 <div class="f"><label>اختيار 3</label><input class="input" id="o3"></div><div class="f"><label>اختيار 4</label><input class="input" id="o4"></div>
 <div class="f" style="grid-column:1/-1"><label>الشرح (يدعم LaTeX)</label><textarea id="mE"></textarea></div></div><div class="q-tools"><button type="button" id="previewQ">👁️ معاينة مباشرة</button><button type="button" id="fontDown">A− حجم السؤال</button><button type="button" id="fontUp">A+ حجم السؤال</button></div><div id="questionPreview" class="q-preview hide"></div>
 <button class="btn" id="cancelEdit" style="display:none">إلغاء التعديل</button> <button class="btn pr" id="addQ">➕ إضافة</button>
-<hr><h3>🗂️ ملفات الأسئلة المرفوعة</h3><p class="sub">عرض ملفات الرفع وإخفاؤها من الامتحانات دون حذف سجلات الطلاب.</p><div id="uploadList"></div><hr><h3>📝 إدارة الأسئلة</h3><br><div class="row"><select class="selSub" id="lfS"></select><select class="input" id="lfC"><option value="">كل الفصول</option></select><input class="input" id="lfT" placeholder="بحث في السؤال أو الدرس"></div><div id="qlist" style="margin-top:10px"></div>
+<hr><h3>🗂️ ملفات الأسئلة المرفوعة</h3><p class="sub">قائمة الملفات المرفوعة؛ يمكنك تعديل بيانات الملف وأسئلته أو حذفه.</p><div id="uploadList"></div><hr><h3>📝 إدارة الأسئلة</h3><br><div class="row"><select class="selSub" id="lfS"></select><select class="input" id="lfC"><option value="">كل الفصول</option></select><input class="input" id="lfT" placeholder="بحث في السؤال أو الدرس"></div><div id="qlist" style="margin-top:10px"></div>
 </div>
 <div class="ap" data-t="ms"><h3>🔔 إشعارات الطلاب</h3><br><div class="f"><textarea id="nT" placeholder="اكتب نص الإشعار الذي سيصل للطلاب..."></textarea></div><button class="btn pr sm" id="nSend">📣 إرسال للطلاب</button><div id="nList" style="margin-top:12px"></div>
 <hr><h3>📢 إعلان</h3><br>
@@ -800,16 +800,34 @@ function renderUploadList(){
  const files=db.uploads||[];
  box.innerHTML=files.map(u=>{
   const subject=db.subjects.find(x=>x.id===u.subject);
-  return '<div class="bx"><b>'+esc(u.name||'ملف أسئلة')+'</b><p class="sub">'+esc(subject?subject.name:'مادة غير موجودة')+' · '+esc(u.chapter||'كل الفصول')+' · '+(u.count||0)+' سؤال · '+fd(u.createdAt||Date.now())+'</p><button class="btn sm" data-up-view="'+esc(u.id)+'">عرض الأسئلة</button> <button class="btn sm" data-up-toggle="'+esc(u.id)+'">'+(u.archived?'إعادة تفعيل':'إخفاء من الامتحانات')+'</button></div>';
+  return '<div class="bx"><b>'+esc(u.name||'ملف أسئلة')+'</b><p class="sub">'+esc(subject?subject.name:'مادة غير موجودة')+' · '+esc(u.chapter||'كل الفصول')+' · '+(u.count||0)+' سؤال · '+fd(u.createdAt||Date.now())+'</p><button class="btn sm" data-up-view="'+esc(u.id)+'">عرض / تعديل الأسئلة</button> <button class="btn sm ac" data-up-edit="'+esc(u.id)+'">تعديل بيانات الملف</button> <button class="btn sm dg" data-up-delete="'+esc(u.id)+'">حذف الملف</button></div>';
  }).join('')||'<p class="sub">لا توجد ملفات مرفوعة مسجلة بعد.</p>';
  $('#uploadList [data-up-view]').forEach(b=>b.onclick=()=>{uploadFilter=b.dataset.upView;const u=files.find(x=>x.id===uploadFilter);if(u)$('lfS').value=String(u.subject);qList();$('qlist').scrollIntoView({behavior:'smooth'})});
- $('#uploadList [data-up-toggle]').forEach(b=>b.onclick=()=>{const u=files.find(x=>x.id===b.dataset.upToggle);if(!u)return;u.archived=!u.archived;db.questions.filter(q=>q.uploadId===u.id).forEach(q=>q.hiddenFromExams=u.archived);save();renderUploadList();toast(u.archived?'تم إخفاء الملف مع الاحتفاظ بالسجلات':'تمت إعادة تفعيل الملف')});
+ $('#uploadList [data-up-edit]').forEach(b=>b.onclick=()=>{
+  const u=files.find(x=>x.id===b.dataset.upEdit);if(!u)return;
+  const name=prompt('اسم الملف',u.name||'');if(name===null)return;
+  const chapter=prompt('الفصل لكل أسئلة الملف',u.chapter||'');if(chapter===null)return;
+  const lesson=prompt('الدرس لكل أسئلة الملف',u.lesson||'');if(lesson===null)return;
+  const cleanName=name.trim();if(!cleanName)return toast('اكتب اسمًا للملف');
+  u.name=cleanName;u.chapter=chapter.trim();u.lesson=lesson.trim();
+  db.questions.filter(q=>q.uploadId===u.id).forEach(q=>{q.chapter=u.chapter;q.lesson=u.lesson});
+  save();renderUploadList();if(uploadFilter===u.id)qList();toast('تم تعديل الملف وأسئلته')
+ });
+ $('#uploadList [data-up-delete]').forEach(b=>b.onclick=()=>{
+  const u=files.find(x=>x.id===b.dataset.upDelete);if(!u)return;
+  const count=db.questions.filter(q=>q.uploadId===u.id).length;
+  if(!confirm('سيتم حذف الملف و'+count+' سؤال من بنك الأسئلة. سجلات الاختبارات السابقة ستظل محفوظة. هل تريد المتابعة؟'))return;
+  db.questions=db.questions.filter(q=>q.uploadId!==u.id);
+  db.uploads=db.uploads.filter(x=>x.id!==u.id);
+  if(uploadFilter===u.id)uploadFilter='';
+  save();renderAdmin();toast('تم حذف الملف وأسئلته')
+ });
 }
 let editId=null;
 function qList(){renderUploadList();const sid=+$('lfS').value,t=$('lfT').value.trim(),a=db.questions.filter(q=>q.subject===sid&&(!uploadFilter||q.uploadId===uploadFilter)&&(!$('lfC').value||q.chapter===$('lfC').value)&&(!t||q.text.includes(t)||(q.chapter||'').includes(t)||(q.lesson||'').includes(t)));
 $('qlist').innerHTML=`<p class="sub">${a.length} سؤال${a.length>40?' (أول 40)':''}</p>`+a.slice(0,40).map(q=>`<div class="wi" style="border-color:var(--p)"><b>${esc(q.text)}</b><div style="font-size:12px;color:var(--m)">${esc(q.chapter)} ${q.lesson?'· '+esc(q.lesson):''}</div><div style="margin-top:6px"><button class="btn sm" data-e="${q.id}">تعديل</button> <button class="btn sm dg" data-x="${q.id}">حذف</button></div></div>`).join('');
 $$('#qlist [data-e]').forEach(b=>b.onclick=()=>editQ(+b.dataset.e));
-$$('#qlist [data-x]').forEach(b=>b.onclick=()=>{if(confirm('حذف السؤال؟')){db.questions=db.questions.filter(q=>q.id!==+b.dataset.x);save();renderAdmin()}})}
+$('#qlist [data-x]').forEach(b=>b.onclick=()=>{if(confirm('حذف السؤال؟')){const q=db.questions.find(x=>x.id===+b.dataset.x);db.questions=db.questions.filter(x=>x.id!==+b.dataset.x);const u=q&&db.uploads.find(x=>x.id===q.uploadId);if(u)u.count=db.questions.filter(x=>x.uploadId===u.id).length;save();renderAdmin()}})}
 function editQ(id){const q=db.questions.find(x=>x.id===id);if(!q)return;editId=id;$('mS').value=q.subject;fillTree('mS','mCh','mLs','—');$('mCh').value=q.chapter;fillTree('mS','mCh','mLs','—');$('mLs').value=q.lesson;$('mT').value=q.text;$('mAns').value=q.answer;$('mE').value=q.explanation;$('mImg').value=q.imageUrl||'';['o1','o2','o3','o4'].forEach((k,i)=>$(k).value=q.options[i]||'');$('addQ').textContent='💾 حفظ التعديل';$('cancelEdit').style.display='';$('mS').scrollIntoView({behavior:'smooth'})}
 function endEdit(){editId=null;$('addQ').textContent='➕ إضافة';$('cancelEdit').style.display='none';['mT','o1','o2','o3','o4','mAns','mE','mImg'].forEach(i=>$(i).value='')}
 $('cancelEdit').onclick=endEdit;$('lfS').onchange=qList;$('lfT').oninput=qList;

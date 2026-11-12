@@ -451,7 +451,7 @@ body.exam-active #v-quiz .qt,body.exam-active #v-quiz #opts,body.exam-active #v-
 <div class="f"><label>اختيار 3</label><input class="input" id="o3"></div><div class="f"><label>اختيار 4</label><input class="input" id="o4"></div>
 <div class="f" style="grid-column:1/-1"><label>الشرح (يدعم LaTeX)</label><textarea id="mE"></textarea></div></div><div class="q-tools"><button type="button" id="previewQ">👁️ معاينة مباشرة</button><button type="button" id="fontDown">A− حجم السؤال</button><button type="button" id="fontUp">A+ حجم السؤال</button></div><div id="questionPreview" class="q-preview hide"></div>
 <button class="btn" id="cancelEdit" style="display:none">إلغاء التعديل</button> <button class="btn pr" id="addQ">➕ إضافة</button>
-<hr><h3>📝 إدارة الأسئلة</h3><br><div class="row"><select class="selSub" id="lfS"></select><select class="input" id="lfC"><option value="">كل الفصول</option></select><input class="input" id="lfT" placeholder="بحث في السؤال أو الدرس"></div><div id="qlist" style="margin-top:10px"></div>
+<hr><h3>🗂️ ملفات الأسئلة المرفوعة</h3><p class="sub">عرض ملفات الرفع وإخفاؤها من الامتحانات دون حذف سجلات الطلاب.</p><div id="uploadList"></div><hr><h3>📝 إدارة الأسئلة</h3><br><div class="row"><select class="selSub" id="lfS"></select><select class="input" id="lfC"><option value="">كل الفصول</option></select><input class="input" id="lfT" placeholder="بحث في السؤال أو الدرس"></div><div id="qlist" style="margin-top:10px"></div>
 </div>
 <div class="ap" data-t="ms"><h3>🔔 إشعارات الطلاب</h3><br><div class="f"><textarea id="nT" placeholder="اكتب نص الإشعار الذي سيصل للطلاب..."></textarea></div><button class="btn pr sm" id="nSend">📣 إرسال للطلاب</button><div id="nList" style="margin-top:12px"></div>
 <hr><h3>📢 إعلان</h3><br>
@@ -577,7 +577,7 @@ if($('resume'))$('resume').onclick=resume;if($('hideResume'))$('hideResume').onc
 $('subs').innerHTML=db.subjects.map(s=>{const n=db.questions.filter(q=>q.subject===s.id).length;return `<div class="sc" data-id="${s.id}"><div class="ic">${esc(s.icon)}</div><h3>${esc(s.name)}</h3><p>${n} سؤال</p></div>`}).join('')||'<p class="sub">لا توجد مواد بعد.</p>';
 $$('.sc').forEach(c=>c.onclick=()=>openSetup(+c.dataset.id));lbRender()}
 // setup
-function pool(){let p=db.questions.filter(q=>q.subject===sub.id);
+function pool(){let p=db.questions.filter(q=>q.subject===sub.id&&!q.hiddenFromExams);
 if(cfg.type!=='all'){const ch=$('selCh').value;p=p.filter(q=>q.chapter===ch);if(cfg.type==='lesson'){const l=$('selLs').value;p=p.filter(q=>q.lesson===l)}}return p}
 function opts(sel,arr){sel.innerHTML=arr.map(x=>`<option>${esc(x)}</option>`).join('')}
 function uniq(a){return [...new Set(a.filter(Boolean))]}
@@ -658,7 +658,7 @@ function exportCheatingReport(){
  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='cheating-report-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
 
-function renderAdmin(){$('a1').textContent=db.codes.length;if($('exportCheat'))$('exportCheat').onclick=exportCheatingReport;refreshExamTimeAdmin();$('a2').textContent=db.exams;$('a3').textContent=db.subjects.length;$('a4').textContent=db.questions.length;
+function renderAdmin(){renderUploadList();$('a1').textContent=db.codes.length;if($('exportCheat'))$('exportCheat').onclick=exportCheatingReport;refreshExamTimeAdmin();$('a2').textContent=db.exams;$('a3').textContent=db.subjects.length;$('a4').textContent=db.questions.length;
 $('ct').innerHTML=db.codes.map((c,i)=>({c,i})).filter(cf).map(({c,i})=>{const ex=Date.now()>c.end,off=c.status==='disabled'||ex;
 return `<tr><td><b>${esc(c.code)}</b></td><td>${esc(c.name)}</td><td>${esc(c.section)}</td><td>${fd(c.start||c.end-30*864e5)}</td><td>${fd(c.end)}</td><td><span class="tag ${off?'x':'a'}">${c.status==='disabled'?'موقوف':ex?'منتهي':'نشط'}</span></td><td>${c.device?'مرتبط':'—'}</td>
 <td><button class="btn sm ac" data-a="i" data-i="${i}">تفاصيل</button> <button class="btn sm" data-a="c" data-i="${i}">نسخ</button> <button class="btn sm" data-a="t" data-i="${i}">${c.status==='disabled'?'تشغيل':'إيقاف'}</button> <button class="btn sm" data-a="r" data-i="${i}">جهاز جديد</button> <button class="btn sm" data-a="+" data-i="${i}">+30</button> <button class="btn sm dg" data-a="d" data-i="${i}">حذف</button></td></tr>`}).join('');
@@ -793,8 +793,19 @@ $('pimg').onchange=()=>{const f=$('pimg').files[0];if(!f)return;const r=new File
 function weak(){const e=Object.entries(me.ls||{}).map(([k,v])=>[k,v,Math.round(v.c/v.n*100)]).sort((a,b)=>a[2]-b[2]);
 $('pwk').innerHTML=e.length?e.map(([k,v,p])=>`<div style="margin-bottom:10px"><div class="qh" style="margin:0"><span>${esc(k)}</span><span style="color:${p>=50?'var(--ok)':'var(--d)'}">${p}% (${v.c}/${v.n})</span></div><div class="pg" style="margin:4px 0 0"><i style="width:${p}%;background:${p>=50?'var(--ok)':'var(--d)'}"></i></div></div>`).join(''):'<p class="sub">ستظهر نقاط ضعفك بعد أول اختبار.</p>'}
 $('retry').onclick=()=>begin(Q.filter((q,i)=>ans[i]!==undefined&&ans[i]!==q.answer));
+let uploadFilter=null;
+function renderUploadList(){
+ const box=$('uploadList');if(!box)return;
+ const files=db.uploads||[];
+ box.innerHTML=files.map(u=>{
+  const subject=db.subjects.find(x=>x.id===u.subject);
+  return '<div class="bx"><b>'+esc(u.name||'ملف أسئلة')+'</b><p class="sub">'+esc(subject?subject.name:'مادة غير موجودة')+' · '+esc(u.chapter||'كل الفصول')+' · '+(u.count||0)+' سؤال · '+fd(u.createdAt||Date.now())+'</p><button class="btn sm" data-up-view="'+esc(u.id)+'">عرض الأسئلة</button> <button class="btn sm" data-up-toggle="'+esc(u.id)+'">'+(u.archived?'إعادة تفعيل':'إخفاء من الامتحانات')+'</button></div>';
+ }).join('')||'<p class="sub">لا توجد ملفات مرفوعة مسجلة بعد.</p>';
+ $('#uploadList [data-up-view]').forEach(b=>b.onclick=()=>{uploadFilter=b.dataset.upView;const u=files.find(x=>x.id===uploadFilter);if(u)$('lfS').value=String(u.subject);qList();$('qlist').scrollIntoView({behavior:'smooth'})});
+ $('#uploadList [data-up-toggle]').forEach(b=>b.onclick=()=>{const u=files.find(x=>x.id===b.dataset.upToggle);if(!u)return;u.archived=!u.archived;db.questions.filter(q=>q.uploadId===u.id).forEach(q=>q.hiddenFromExams=u.archived);save();renderUploadList();toast(u.archived?'تم إخفاء الملف مع الاحتفاظ بالسجلات':'تمت إعادة تفعيل الملف')});
+}
 let editId=null;
-function qList(){const sid=+$('lfS').value,t=$('lfT').value.trim(),a=db.questions.filter(q=>q.subject===sid&&(!$('lfC').value||q.chapter===$('lfC').value)&&(!t||q.text.includes(t)||(q.chapter||'').includes(t)||(q.lesson||'').includes(t)));
+function qList(){renderUploadList();const sid=+$('lfS').value,t=$('lfT').value.trim(),a=db.questions.filter(q=>q.subject===sid&&(!uploadFilter||q.uploadId===uploadFilter)&&(!$('lfC').value||q.chapter===$('lfC').value)&&(!t||q.text.includes(t)||(q.chapter||'').includes(t)||(q.lesson||'').includes(t)));
 $('qlist').innerHTML=`<p class="sub">${a.length} سؤال${a.length>40?' (أول 40)':''}</p>`+a.slice(0,40).map(q=>`<div class="wi" style="border-color:var(--p)"><b>${esc(q.text)}</b><div style="font-size:12px;color:var(--m)">${esc(q.chapter)} ${q.lesson?'· '+esc(q.lesson):''}</div><div style="margin-top:6px"><button class="btn sm" data-e="${q.id}">تعديل</button> <button class="btn sm dg" data-x="${q.id}">حذف</button></div></div>`).join('');
 $$('#qlist [data-e]').forEach(b=>b.onclick=()=>editQ(+b.dataset.e));
 $$('#qlist [data-x]').forEach(b=>b.onclick=()=>{if(confirm('حذف السؤال؟')){db.questions=db.questions.filter(q=>q.id!==+b.dataset.x);save();renderAdmin()}})}

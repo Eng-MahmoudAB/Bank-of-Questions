@@ -1,6 +1,0 @@
-.firebase/
-functions/node_modules/
-node_modules/
-.env*
-service-account*.json
-*-service-account*.json

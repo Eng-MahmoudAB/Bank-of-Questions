@@ -1,33 +1,36 @@
 # Bank of Questions
 
-The site is currently hosted as a static GitHub Pages application. Firebase backend files are being prepared on the feature branch; nothing in this repository deploys itself to the live Firebase project.
+The site is hosted as a static GitHub Pages application. Firebase backend files are prepared on the feature branch; nothing in this repository deploys itself to the live Firebase project.
 
-## Current security work
+## Security work on this branch
 
-- Administrator sign-in uses Firebase Authentication and requires a verified email plus a server-assigned `admin` custom claim.
-- Only trusted Cloud Functions can read or write the legacy `platform/db` document. Firestore client rules deny all direct client access.
-- Student code login and student record synchronization are still local to the browser. Do not treat this branch as a complete multi-device student migration or deploy it as a finished platform update yet. App Check is not enforced yet; configure the provider and test it before enabling enforcement.
-- Admin data remains in the legacy single-document format during this transition. The server rejects malformed payloads and documents above 900 KB. A later migration must split public question content from private student records.
+- Administrators sign in with Firebase Authentication. Admin Functions also require a verified email and the server-assigned `admin` custom claim.
+- Students redeem their six-digit activation code through a callable Function. The server checks expiry, disabled status, device binding, and rate limits before issuing a scoped Firebase custom token.
+- Student functions return only that student's record. Exam scores and history are computed and stored by the server; students cannot submit or replace the shared database document.
+- App Check is enforced on all student functions. The browser has a placeholder for the public reCAPTCHA v3 site key; student sign-in stays disabled until this key is configured.
+- Firestore client rules deny all direct reads and writes. Trusted Functions use the Admin SDK and check the caller's role.
+- The server still stores the platform in the legacy single Firestore document. Its 900 KB application limit and concurrent-write contention mean a physical split into content and per-student documents remains before a high-volume production rollout.
 
 ## Firebase setup for a maintainer
 
-1. Confirm the Firebase project is `bank-of-questions-c646f` and check the Firestore database region before selecting a Functions region. The current code uses `europe-west1`; change `FUNCTION_REGION` only after checking the project location and expected latency.
-2. Cloud Functions deployment requires the Firebase project to use the Blaze pay-as-you-go plan. Set a budget alert before enabling it. Do not deploy without reviewing the billing impact.
-3. Install Firebase CLI and Functions dependencies, then run `npm install` in `functions/`.
-4. Create/verify the administrator account in Firebase Authentication and verify its email.
-5. From a trusted workstation authenticated with Google Application Default Credentials, assign the custom claim with:
+1. In Firebase App Check, register the web app with a reCAPTCHA v3 provider. Send the **public site key** to the maintainer to replace the placeholder in `index.html`. Keep the reCAPTCHA secret key inside Google/Firebase Console; do not send or commit it. Monitor App Check metrics before enabling enforcement in the console.
+2. Confirm the Firebase project is `bank-of-questions-c646f` and check the Firestore database region before selecting a Functions region. The current code uses `europe-west1`; verify this choice against the project location and expected latency.
+3. Cloud Functions deployment requires the Firebase project to use the Blaze pay-as-you-go plan. Set a budget alert before enabling it. Do not deploy without reviewing the billing impact.
+4. Install Firebase CLI and Functions dependencies, then run `npm install` in `functions/`.
+5. Create/verify the administrator account in Firebase Authentication and verify its email.
+6. From a trusted workstation authenticated with Google Application Default Credentials, assign the custom claim with:
 
    ```sh
    FIREBASE_PROJECT_ID=bank-of-questions-c646f node functions/scripts/grant-admin-claim.js RWVY1V82kfYl2SoulHoxjzeaYiJ2
    ```
 
    This script uses Firebase Admin credentials and must never be run from the website or a public CI job. It checks that the account exists and its email is verified.
-6. Run `npm run check --prefix functions` and `npm run test:unit --prefix functions`. Run `npm run test:rules --prefix functions` with Java and Firebase CLI installed before deployment. Deploying Functions and rules changes live access and requires a separate production review.
+7. Run `npm run check --prefix functions` and `npm run test:unit --prefix functions`. Run `npm run test:rules --prefix functions` with Java and Firebase CLI installed. Deploying Functions and rules changes live access and needs a separate production review.
 
 ## Existing platform and backups
 
 The platform previously stored settings, questions, activation codes, and student history together in `platform/db`. Existing browser backups may contain student personal data and activation codes; keep them private and outside the public repository. The backend intentionally does not import or overwrite a backup automatically.
 
-## GitHub Pages
+## Hosting
 
-GitHub Pages serves the static `index.html`; it does not host the Functions backend. The Firebase project and GitHub Pages deployment are separate. Keep all changes on the feature branch until the student migration and full workflow testing are complete.
+GitHub Pages serves the static `index.html`; it does not host Functions. Firebase and GitHub Pages remain separate services. Keep changes on the feature branch until the student flow, App Check key, physical data split, emulator coverage, and browser testing are complete.

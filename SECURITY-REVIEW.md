@@ -10,12 +10,14 @@
 - Student Functions enforce Firebase App Check. The client initializes the reCAPTCHA v3 provider with the public site key supplied for the Firebase web app.
 - Firestore rules deny all client reads and writes. Admin SDK access bypasses Rules, so the Functions enforce the role claim themselves.
 - Admin writes use a revision check so stale administrator pages cannot silently overwrite newer updates.
+- The page includes `noindex`, `nofollow`, and `noarchive` directives for search crawlers. These directives do not restrict direct visits to a public hosting URL.
 
 ## Remaining before production
 
 - The legacy data is still stored in one Firestore document. The backend rejects data over 900 KB, and every student result currently updates that document. Split public content, requests, and student records into separate documents/collections before a high-volume rollout.
 - Verify the supplied App Check site key is registered for the deployed web domain. Keep the secret key in Console. Confirm Functions App Check enforcement and service-account permissions in the deployment environment.
 - Existing Firestore deny-all Rules remain in effect. This branch has not deployed any Functions or Rules; live Firebase behavior is unverified.
+- Search engine removal is not verified on the live domain. A crawler must be allowed to fetch the page to read `noindex`; this is discoverability control, not access control.
 - Ten callable unit tests pass with mocked Firebase services. The Rules emulator suite is included but could not run here because Java is unavailable. Browser end-to-end tests and live Firebase tests remain unverified.
 - The default administrator password appeared in earlier public Git history. Rotate any credential that reused it; removing it from the current file does not erase prior commits.
 

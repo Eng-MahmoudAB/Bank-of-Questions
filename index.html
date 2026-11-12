@@ -58,6 +58,11 @@ h2.t{margin:6px 0 14px;font-size:20px}
 .sc .ic{font-size:34px}.sc h3{margin:6px 0 2px}.sc p{font-size:12px;color:var(--m)}
 .ad{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);border-radius:16px;padding:14px;margin-bottom:16px;display:flex;gap:12px;align-items:center}
 .ad img{width:70px;height:70px;border-radius:12px;object-fit:cover}
+.ad-strip{position:relative;border:1px solid var(--b);background:var(--s);border-radius:14px;padding:10px 42px 10px 12px;margin-bottom:14px;cursor:pointer;box-shadow:0 5px 18px -12px #000}
+.ad-strip .ad-close{position:absolute;right:8px;top:8px;width:25px;height:25px;border-radius:8px;background:var(--s2);font-size:14px}
+.ad-expanded{border:1px solid var(--b);background:var(--s);border-radius:16px;padding:12px;margin-bottom:14px}
+.ad-expanded img{display:block;max-width:100%;max-height:340px;object-fit:contain;border-radius:12px;margin:10px auto}
+.ad-expanded iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px}
 .f{margin-bottom:14px}.f label{display:block;font-size:13px;font-weight:600;color:var(--t2);margin-bottom:6px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{padding:7px 14px;border-radius:10px;background:var(--s2);border:1.5px solid var(--b);font-size:13px;font-weight:600}
@@ -370,7 +375,7 @@ body.exam-active #v-quiz .qt,body.exam-active #v-quiz #opts,body.exam-active #v-
 <section id="v-quiz" class="hide"><div class="card">
 <div class="qh"><div>السؤال <span id="qn">1</span> / <span id="qt">1</span> · <span id="qch" style="color:var(--m)"></span></div><div><span id="asv" class="asv">💾 حُفظ تلقائيًا</span><span id="qscore">✅ <span id="qc">0</span> &nbsp; ❌ <span id="qw">0</span> &nbsp;</span>⏱ <span id="tm">00:00</span> &nbsp;<button class="btn sm" id="focusB" title="وضع التركيز العميق">🎯 تركيز</button></div></div>
 <div class="pg"><i id="pg" style="width:0"></i></div>
-<div class="qt" id="qtx"></div><img id="qImage" class="q-image hide" alt="صورة توضيحية للسؤال"><div id="opts"></div><div class="ex hide" id="ex"></div>
+<img id="qImage" class="q-image hide" alt="صورة توضيحية للسؤال"><div class="qt" id="qtx"></div><div id="opts"></div><div class="ex hide" id="ex"></div>
 <div class="qn" style="justify-content:space-between"><button class="btn" id="prev">→ السابق</button><button class="btn ac" id="next">التالي ←</button></div>
 <hr><div class="cb"><button class="btn pr" id="fin" style="flex:1 1 150px">📊 عرض النتيجة</button><button class="btn dg" id="exit" style="flex:1 1 150px">🚪 الخروج من الامتحان</button><button class="btn" id="home2" style="flex:1 1 150px">🏠 الخروج للصفحة الرئيسية</button></div>
 </div></section>
@@ -447,12 +452,12 @@ body.exam-active #v-quiz .qt,body.exam-active #v-quiz #opts,body.exam-active #v-
 <div class="f"><label>اختيار 3</label><input class="input" id="o3"></div><div class="f"><label>اختيار 4</label><input class="input" id="o4"></div>
 <div class="f" style="grid-column:1/-1"><label>الشرح (يدعم LaTeX)</label><textarea id="mE"></textarea></div></div><div class="q-tools"><button type="button" id="previewQ">👁️ معاينة مباشرة</button><button type="button" id="fontDown">A− حجم السؤال</button><button type="button" id="fontUp">A+ حجم السؤال</button></div><div id="questionPreview" class="q-preview hide"></div>
 <button class="btn" id="cancelEdit" style="display:none">إلغاء التعديل</button> <button class="btn pr" id="addQ">➕ إضافة</button>
-<hr><h3>📝 إدارة الأسئلة</h3><br><div class="row"><select class="selSub" id="lfS"></select><select class="input" id="lfC"><option value="">كل الفصول</option></select><input class="input" id="lfT" placeholder="بحث في السؤال أو الدرس"></div><div id="qlist" style="margin-top:10px"></div>
+<hr><h3>🗂️ ملفات الأسئلة المرفوعة</h3><p class="sub">عرض ملفات الرفع وإخفاؤها من الامتحانات دون حذف سجلات الطلاب.</p><div id="uploadList"></div><hr><h3>📝 إدارة الأسئلة</h3><br><div class="row"><select class="selSub" id="lfS"></select><select class="input" id="lfC"><option value="">كل الفصول</option></select><input class="input" id="lfT" placeholder="بحث في السؤال أو الدرس"></div><div id="qlist" style="margin-top:10px"></div>
 </div>
 <div class="ap" data-t="ms"><h3>🔔 إشعارات الطلاب</h3><br><div class="f"><textarea id="nT" placeholder="اكتب نص الإشعار الذي سيصل للطلاب..."></textarea></div><button class="btn pr sm" id="nSend">📣 إرسال للطلاب</button><div id="nList" style="margin-top:12px"></div>
 <hr><h3>📢 إعلان</h3><br>
 <div class="f"><textarea id="adT" placeholder="نص الإعلان"></textarea></div>
-<div class="f"><input type="file" id="adI" accept="image/*" class="input"></div>
+<div class="f"><label>نوع الإعلان</label><select id="adMode" class="input"><option value="image">صورة</option><option value="video">فيديو يوتيوب</option></select></div><div class="f"><label>رابط فيديو يوتيوب</label><input id="adVideo" class="input" type="url" placeholder="https://youtu.be/..."></div><div class="f"><label>صورة الإعلان</label><input type="file" id="adI" accept="image/*" class="input"></div>
 <div class="row"><button class="btn pr sm" id="adS">💾 حفظ</button><button class="btn dg sm" id="adD">🗑️ حذف</button></div>
 </div>
 <div class="ap" data-t="st"><h3>⚙️ الإعدادات</h3><br>
@@ -508,7 +513,7 @@ questions:[
 {id:5,subject:1,chapter:'الفصل الثاني: الوراثة',lesson:'DNA',text:'الرابطة التي تربط بين القاعدتين النيتروجينيتين المتقابلتين في DNA هي:',options:['تساهمية','هيدروجينية','أيونية','فوسفاتية ثنائية الإستر'],answer:'هيدروجينية',explanation:'A=T برابطتين هيدروجينيتين، و G≡C بثلاث روابط.'}]});
 let db;
 function load(){try{db=JSON.parse(ls.get(K))}catch(e){}if(!db||!db.codes)db=SEED();norm()}
-function norm(){db.codes=(db.codes||[]).filter(c=>c.code!=='123456');db.requests=db.requests||[];db.notifs=db.notifs||[];db.settings.examTimes=db.settings.examTimes||{};db.settings.admin=db.settings.admin||'Mahmoud Diab';db.codes.forEach(c=>{c.wrongBank=c.wrongBank||[];c.hist=c.hist||[];c.examLogs=c.examLogs||[]});db.questions.forEach(q=>{q.imageUrl=q.imageUrl||''});db.subjects.forEach(x=>x.chapters=x.chapters||[]);db.questions.forEach(q=>ens(q.subject,q.chapter,q.lesson))}
+function norm(){db.codes=(db.codes||[]).filter(c=>c.code!=='123456');db.requests=db.requests||[];db.notifs=db.notifs||[];db.uploads=db.uploads||[];db.settings.examTimes=db.settings.examTimes||{};db.settings.admin=db.settings.admin||'Mahmoud Diab';db.codes.forEach(c=>{c.wrongBank=c.wrongBank||[];c.hist=c.hist||[];c.examLogs=c.examLogs||[]});db.questions.forEach(q=>{q.imageUrl=q.imageUrl||''});db.subjects.forEach(x=>x.chapters=x.chapters||[]);db.questions.forEach(q=>ens(q.subject,q.chapter,q.lesson))}
 function ens(sid,ch,l){const x=db.subjects.find(y=>y.id===sid);if(!x||!ch)return;let c=x.chapters.find(y=>y.name===ch);if(!c)x.chapters.push(c={name:ch,lessons:[]});if(l&&!c.lessons.includes(l))c.lessons.push(l)}
 const FB={apiKey:"AIzaSyD_3jSeqKhU2stFCA53YYcAcUwOr6TMXeQ",authDomain:"bank-of-questions-c646f.firebaseapp.com",projectId:"bank-of-questions-c646f",storageBucket:"bank-of-questions-c646f.firebasestorage.app",messagingSenderId:"460598890350",appId:"1:460598890350:web:7da79d99f6449178fb7b7f"};
 let fs=null;try{if(FB&&window.firebase){firebase.initializeApp(FB);fs=firebase.firestore().collection('platform').doc('db')}}catch(e){}
@@ -551,17 +556,29 @@ $('go').onclick=async()=>{const b=$('go');if(b.disabled)return;const t=b.innerHT
 $('code').onkeydown=e=>{if(e.key==='Enter')$('go').click()};
 $('out').onclick=()=>{ls.del(KS);me=null;$('out').classList.add('hide');$('prof').classList.add('hide');$('bell').classList.add('hide');$('palb').classList.add('hide');resetTh();$('code').value='';$('code').dispatchEvent(new Event('input'));show('login')};
 // home
+function renderAd(){
+const a=db.ann;if(!a){$('adbox').innerHTML='';return}
+const m=String(a.video||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
+if(sessionStorage.getItem('mdp_ad_open')==='1'){
+$('adbox').innerHTML='<div class="ad-expanded"><button class="btn sm" id="adCollapse" style="float:left">✕</button><b>📢 '+esc(a.text||'إعلان')+'</b>'+(a.mode==='video'&&m?'<iframe src="https://www.youtube-nocookie.com/embed/'+m[1]+'" title="إعلان فيديو" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>':(a.img?'<img src="'+a.img+'" alt="إعلان">':''))+'</div>';
+$('adCollapse').onclick=()=>{sessionStorage.removeItem('mdp_ad_open');renderAd()};
+}else{
+$('adbox').innerHTML='<div class="ad-strip" id="adExpand"><button class="ad-close" id="adDismiss" aria-label="إغلاق">✕</button><b>📢 '+esc(a.text||'إعلان')+'</b><span style="color:var(--m);font-size:12px"> · اضغط لعرض الإعلان</span></div>';
+$('adExpand').onclick=()=>{sessionStorage.setItem('mdp_ad_open','1');renderAd()};
+$('adDismiss').onclick=e=>{e.stopPropagation();toast('الشريط الصغير يظل ظاهرًا أثناء استخدام المنصة')};
+}
+}
 function renderHome(){
 $('wel').textContent='👋 أهلاً '+(me?me.name:'')+' في '+db.settings.name;
 $('s1').textContent=db.subjects.length;$('s2').textContent=db.questions.length;$('s3').textContent=db.exams;
 $('s4').textContent=me?Math.max(0,Math.ceil((me.end-Date.now())/864e5)):0;
-const a=db.ann;$('adbox').innerHTML=a?`<div class="ad">${a.img?`<img src="${a.img}" alt="">`:''}<div><b style="color:var(--g)">📢 إعلان</b><p>${esc(a.text)}</p></div></div>`:'';
-const rs=me&&ls.get('mdp_res_'+me.code),nw=me?(me.wr||[]).length:0;$('adbox').innerHTML+=(rs?'<div class="ad"><b>⏳ لديك اختبار غير مكتمل</b><button class="btn ac sm" id="resume">▶ استكمال</button></div>':'')+(nw?`<div class="ad"><b>🔁 أسئلة أخطأت فيها: ${nw}</b><button class="btn gd sm" id="retryAll">حلّها الآن</button></div>`:'');
-if($('resume'))$('resume').onclick=resume;if($('retryAll'))$('retryAll').onclick=()=>begin(db.questions.filter(q=>(me.wr||[]).includes(q.id)));
+renderAd();
+const rs=me&&ls.get('mdp_res_'+me.code),nw=me?(me.wr||[]).length:0,hideResume=me&&sessionStorage.getItem('mdp_hide_resume_'+me.code)==='1';$('adbox').innerHTML+=(rs&&!hideResume?'<div class="ad" id="resumeBanner"><b>⏳ لديك اختبار غير مكتمل</b><button class="btn ac sm" id="resume">▶ استكمال</button><button class="btn sm" id="hideResume" aria-label="إخفاء">✕</button></div>':'')+(nw?`<div class="ad"><b>🔁 أسئلة أخطأت فيها: ${nw}</b><button class="btn gd sm" id="retryAll">حلّها الآن</button></div>`:'');
+if($('resume'))$('resume').onclick=resume;if($('hideResume'))$('hideResume').onclick=()=>{sessionStorage.setItem('mdp_hide_resume_'+me.code,'1');$('resumeBanner')?.remove()};if($('retryAll'))$('retryAll').onclick=()=>begin(db.questions.filter(q=>(me.wr||[]).includes(q.id)));
 $('subs').innerHTML=db.subjects.map(s=>{const n=db.questions.filter(q=>q.subject===s.id).length;return `<div class="sc" data-id="${s.id}"><div class="ic">${esc(s.icon)}</div><h3>${esc(s.name)}</h3><p>${n} سؤال</p></div>`}).join('')||'<p class="sub">لا توجد مواد بعد.</p>';
 $$('.sc').forEach(c=>c.onclick=()=>openSetup(+c.dataset.id));lbRender()}
 // setup
-function pool(){let p=db.questions.filter(q=>q.subject===sub.id);
+function pool(){let p=db.questions.filter(q=>q.subject===sub.id&&!q.hiddenFromExams);
 if(cfg.type!=='all'){const ch=$('selCh').value;p=p.filter(q=>q.chapter===ch);if(cfg.type==='lesson'){const l=$('selLs').value;p=p.filter(q=>q.lesson===l)}}return p}
 function opts(sel,arr){sel.innerHTML=arr.map(x=>`<option>${esc(x)}</option>`).join('')}
 function uniq(a){return [...new Set(a.filter(Boolean))]}
@@ -642,7 +659,7 @@ function exportCheatingReport(){
  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='cheating-report-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
 
-function renderAdmin(){$('a1').textContent=db.codes.length;if($('exportCheat'))$('exportCheat').onclick=exportCheatingReport;refreshExamTimeAdmin();$('a2').textContent=db.exams;$('a3').textContent=db.subjects.length;$('a4').textContent=db.questions.length;
+function renderAdmin(){renderUploadList();$('a1').textContent=db.codes.length;if($('exportCheat'))$('exportCheat').onclick=exportCheatingReport;refreshExamTimeAdmin();$('a2').textContent=db.exams;$('a3').textContent=db.subjects.length;$('a4').textContent=db.questions.length;
 $('ct').innerHTML=db.codes.map((c,i)=>({c,i})).filter(cf).map(({c,i})=>{const ex=Date.now()>c.end,off=c.status==='disabled'||ex;
 return `<tr><td><b>${esc(c.code)}</b></td><td>${esc(c.name)}</td><td>${esc(c.section)}</td><td>${fd(c.start||c.end-30*864e5)}</td><td>${fd(c.end)}</td><td><span class="tag ${off?'x':'a'}">${c.status==='disabled'?'موقوف':ex?'منتهي':'نشط'}</span></td><td>${c.device?'مرتبط':'—'}</td>
 <td><button class="btn sm ac" data-a="i" data-i="${i}">تفاصيل</button> <button class="btn sm" data-a="c" data-i="${i}">نسخ</button> <button class="btn sm" data-a="t" data-i="${i}">${c.status==='disabled'?'تشغيل':'إيقاف'}</button> <button class="btn sm" data-a="r" data-i="${i}">جهاز جديد</button> <button class="btn sm" data-a="+" data-i="${i}">+30</button> <button class="btn sm dg" data-a="d" data-i="${i}">حذف</button></td></tr>`}).join('');
@@ -663,20 +680,20 @@ $$('#slist [data-al]').forEach(b=>b.onclick=()=>{const[i,c]=b.dataset.al.split('
 $$('#slist [data-dc]').forEach(b=>b.onclick=()=>{const[i,c]=b.dataset.dc.split('|'),ch=S(i).chapters[c];if(!confirm('حذف الفصل وكل أسئلته؟'))return;db.questions=db.questions.filter(q=>!(q.subject==i&&q.chapter===ch.name));S(i).chapters.splice(+c,1);save();renderAdmin()});
 $$('#slist [data-dl]').forEach(b=>b.onclick=()=>{const[i,c,l]=b.dataset.dl.split('|'),ch=S(i).chapters[c],nm=ch.lessons[l];if(!confirm('حذف الدرس وكل أسئلته؟'))return;db.questions=db.questions.filter(q=>!(q.subject==i&&q.chapter===ch.name&&q.lesson===nm));ch.lessons.splice(+l,1);save();renderAdmin()});
 $$('#slist [data-s]').forEach(b=>b.onclick=()=>{if(!confirm('حذف المادة وأسئلتها؟'))return;const id=+b.dataset.s;db.subjects=db.subjects.filter(s=>s.id!==id);db.questions=db.questions.filter(q=>q.subject!==id);save();renderAdmin()});
-const s=db.settings;$('eN').value=s.name;$('eT').value=s.tg;$('eW').value=s.wa;$('eP').value=s.pass;$('eA').value=s.admin;$('adT').value=db.ann?db.ann.text:'';qList();nList();renderOv();fillTree('mS','mCh','mLs','—');fillTree('upS','upC','upL','حسب الملف')}
+const s=db.settings;$('eN').value=s.name;$('eT').value=s.tg;$('eW').value=s.wa;$('eP').value=s.pass;$('eA').value=s.admin;$('adT').value=db.ann?db.ann.text:'';$('adVideo').value=db.ann?.video||'';$('adMode').value=db.ann?.mode||'image';qList();nList();renderOv();fillTree('mS','mCh','mLs','—');fillTree('upS','upC','upL','حسب الملف')}
 $('gen').onclick=()=>{let c;do{c=String(Math.floor(100000+Math.random()*900000))}while(db.codes.some(x=>x.code===c));$('nCode').value=c};
 $('mk').onclick=()=>{const c=$('nCode').value.trim(),n=$('nName').value.trim(),d=+$('nDays').value;
 if(!/^\d{6}$/.test(c))return toast('الكود 6 أرقام');if(!n)return toast('اكتب اسم الطالب');if(db.codes.some(x=>x.code===c))return toast('الكود مستخدم');
 db.codes.push({code:c,name:n,section:$('nTyp').value+' - '+$('nSec').value,start:Date.now(),end:Date.now()+d*864e5,status:'active',device:''});save();$('nName').value='';$('nCode').value='';renderAdmin();toast('تم إنشاء الكود')};
 $('addS').onclick=()=>{const n=$('sName').value.trim();if(!n)return toast('اكتب اسم المادة');db.subjects.push({chapters:[],id:Date.now(),name:n,icon:$('sIcon').value||'📘'});save();$('sName').value='';renderAdmin()};
-function pushQ(o,sid){if(!o||!o.text||!Array.isArray(o.options)||o.options.length<2||!o.options.includes(o.answer))return false;
-db.questions.push({id:Date.now()+Math.random(),subject:sid,chapter:o.chapter||'',lesson:o.lesson||'',text:String(o.text),options:o.options.map(String),answer:String(o.answer),explanation:o.explanation||'',imageUrl:safeImageUrl(o.imageUrl||'')});ens(sid,o.chapter,o.lesson);return true}
-$('upB').onclick=()=>{const f=$('upF').files[0];if(!f)return toast('اختر ملف JSON أولاً');if(!$('upS').value)return toast('أضف مادة أولاً ثم اخترها');const r=new FileReader();r.onerror=()=>toast('تعذر قراءة الملف — جرّب ملفًا آخر');r.onload=()=>{let a;try{a=JSON.parse(r.result)}catch(e){return toast('الملف ليس JSON صالحًا: '+String(e.message).slice(0,70))}if(!Array.isArray(a))return toast('يجب أن يكون الملف قائمة أسئلة داخل [ ]');let n=0;const bad=[];a.forEach((o,k)=>{o=o||{};if(pushQ({...o,chapter:$('upC').value||o.chapter,lesson:$('upL').value||o.lesson},+$('upS').value))n++;else bad.push(k+1)});const nt=$('upN').value.trim();if(n&&nt){sendN(nt);$('upN').value=''}save();renderAdmin();toast('تم رفع '+n+' من '+a.length+(bad.length?' — مرفوض رقم: '+bad.slice(0,5).join('، ')+(bad.length>5?'…':'')+' (النص ناقص أو الإجابة ليست ضمن الاختيارات)':'')+(n&&nt?' وتم إرسال الإشعار':''))};r.readAsText(f)};
+function pushQ(o,sid,uploadId){if(!o||!o.text||!Array.isArray(o.options)||o.options.length<2||!o.options.includes(o.answer))return false;
+db.questions.push({id:Date.now()+Math.random(),subject:sid,chapter:o.chapter||'',lesson:o.lesson||'',text:String(o.text),options:o.options.map(String),answer:String(o.answer),explanation:o.explanation||'',imageUrl:safeImageUrl(o.imageUrl||''),uploadId:uploadId||null});ens(sid,o.chapter,o.lesson);return true}
+$('upB').onclick=()=>{const f=$('upF').files[0];if(!f)return toast('اختر ملف JSON أولاً');if(!$('upS').value)return toast('أضف مادة أولاً ثم اخترها');const r=new FileReader();r.onerror=()=>toast('تعذر قراءة الملف — جرّب ملفًا آخر');r.onload=()=>{let a;try{a=JSON.parse(r.result)}catch(e){return toast('الملف ليس JSON صالحًا: '+String(e.message).slice(0,70))}if(!Array.isArray(a))return toast('يجب أن يكون الملف قائمة أسئلة داخل [ ]');let n=0;const bad=[],uploadId='up_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);a.forEach((o,k)=>{o=o||{};if(pushQ({...o,chapter:$('upC').value||o.chapter,lesson:$('upL').value||o.lesson},+$('upS').value,uploadId))n++;else bad.push(k+1)});if(n)db.uploads.push({id:uploadId,name:f.name,subject:+$('upS').value,chapter:$('upC').value||'',lesson:$('upL').value||'',count:n,createdAt:Date.now()});const nt=$('upN').value.trim();if(n&&nt){sendN(nt);$('upN').value=''}save();renderAdmin();toast('تم رفع '+n+' من '+a.length+(bad.length?' — مرفوض رقم: '+bad.slice(0,5).join('، ')+(bad.length>5?'…':'')+' (النص ناقص أو الإجابة ليست ضمن الاختيارات)':'')+(n&&nt?' وتم إرسال الإشعار':''))};r.readAsText(f)};
 $('addQ').onclick=()=>{const o=['o1','o2','o3','o4'].map(i=>$(i).value.trim()).filter(Boolean);
 const old=editId;if(pushQ({text:$('mT').value.trim(),options:o,answer:$('mAns').value.trim(),explanation:$('mE').value.trim(),imageUrl:$('mImg').value.trim(),chapter:$('mCh').value.trim(),lesson:$('mLs').value.trim()},+$('mS').value)){if(old){const i=db.questions.findIndex(q=>q.id===old),nq=db.questions.pop();nq.id=old;if(i<0)db.questions.push(nq);else db.questions[i]=nq}save();endEdit();renderAdmin();toast(old?'تم التعديل':'تمت الإضافة')}else toast(!$('mT').value.trim()?'اكتب نص السؤال':o.length<2?'أضف اختيارين على الأقل':'الإجابة الصحيحة يجب أن تطابق أحد الاختيارات حرفيًا')};
 let adImg='';$('adI').onchange=()=>{const f=$('adI').files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,600/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);adImg=c.toDataURL('image/jpeg',.7);toast('تم تجهيز الصورة')};im.src=r.result};r.readAsDataURL(f)};
-$('adS').onclick=()=>{const t=$('adT').value.trim();if(!t)return toast('اكتب نص الإعلان');db.ann={text:t,img:adImg};save();toast('تم حفظ الإعلان')};
-$('adD').onclick=()=>{db.ann=null;adImg='';$('adT').value='';save();toast('تم الحذف')};
+$('adS').onclick=()=>{const t=$('adT').value.trim();if(!t)return toast('اكتب نص الإعلان');const video=$("adVideo").value.trim(),mode=$("adMode").value;if(!t&&!adImg&&!video)return toast("أضف نصًا أو صورة أو رابط فيديو");if(mode==="video"&&video&&!/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))[A-Za-z0-9_-]{11}/.test(video))return toast("رابط يوتيوب غير صالح");db.ann={text:t,img:adImg||"",video:mode==="video"?video:"",mode};save();toast("تم حفظ الإعلان")};
+$('adD').onclick=()=>{db.ann=null;adImg='';$('adT').value='';$('adVideo').value='';save();renderAd();toast('تم الحذف')};
 function refreshExamTimeAdmin(){
  const sel=$('examTimeSubject'),scope=$('examTimeScope'),ch=$('examTimeChapter'),lsel=$('examTimeLesson');
  if(!sel)return;
@@ -777,8 +794,19 @@ $('pimg').onchange=()=>{const f=$('pimg').files[0];if(!f)return;const r=new File
 function weak(){const e=Object.entries(me.ls||{}).map(([k,v])=>[k,v,Math.round(v.c/v.n*100)]).sort((a,b)=>a[2]-b[2]);
 $('pwk').innerHTML=e.length?e.map(([k,v,p])=>`<div style="margin-bottom:10px"><div class="qh" style="margin:0"><span>${esc(k)}</span><span style="color:${p>=50?'var(--ok)':'var(--d)'}">${p}% (${v.c}/${v.n})</span></div><div class="pg" style="margin:4px 0 0"><i style="width:${p}%;background:${p>=50?'var(--ok)':'var(--d)'}"></i></div></div>`).join(''):'<p class="sub">ستظهر نقاط ضعفك بعد أول اختبار.</p>'}
 $('retry').onclick=()=>begin(Q.filter((q,i)=>ans[i]!==undefined&&ans[i]!==q.answer));
+let uploadFilter=null;
+function renderUploadList(){
+ const box=$('uploadList');if(!box)return;
+ const files=db.uploads||[];
+ box.innerHTML=files.map(u=>{
+  const subject=db.subjects.find(x=>x.id===u.subject);
+  return '<div class="bx"><b>'+esc(u.name||'ملف أسئلة')+'</b><p class="sub">'+esc(subject?subject.name:'مادة غير موجودة')+' · '+esc(u.chapter||'كل الفصول')+' · '+(u.count||0)+' سؤال · '+fd(u.createdAt||Date.now())+'</p><button class="btn sm" data-up-view="'+esc(u.id)+'">عرض الأسئلة</button> <button class="btn sm" data-up-toggle="'+esc(u.id)+'">'+(u.archived?'إعادة تفعيل':'إخفاء من الامتحانات')+'</button></div>';
+ }).join('')||'<p class="sub">لا توجد ملفات مرفوعة مسجلة بعد.</p>';
+ $('#uploadList [data-up-view]').forEach(b=>b.onclick=()=>{uploadFilter=b.dataset.upView;const u=files.find(x=>x.id===uploadFilter);if(u)$('lfS').value=String(u.subject);qList();$('qlist').scrollIntoView({behavior:'smooth'})});
+ $('#uploadList [data-up-toggle]').forEach(b=>b.onclick=()=>{const u=files.find(x=>x.id===b.dataset.upToggle);if(!u)return;u.archived=!u.archived;db.questions.filter(q=>q.uploadId===u.id).forEach(q=>q.hiddenFromExams=u.archived);save();renderUploadList();toast(u.archived?'تم إخفاء الملف مع الاحتفاظ بالسجلات':'تمت إعادة تفعيل الملف')});
+}
 let editId=null;
-function qList(){const sid=+$('lfS').value,t=$('lfT').value.trim(),a=db.questions.filter(q=>q.subject===sid&&(!$('lfC').value||q.chapter===$('lfC').value)&&(!t||q.text.includes(t)||(q.chapter||'').includes(t)||(q.lesson||'').includes(t)));
+function qList(){renderUploadList();const sid=+$('lfS').value,t=$('lfT').value.trim(),a=db.questions.filter(q=>q.subject===sid&&(!uploadFilter||q.uploadId===uploadFilter)&&(!$('lfC').value||q.chapter===$('lfC').value)&&(!t||q.text.includes(t)||(q.chapter||'').includes(t)||(q.lesson||'').includes(t)));
 $('qlist').innerHTML=`<p class="sub">${a.length} سؤال${a.length>40?' (أول 40)':''}</p>`+a.slice(0,40).map(q=>`<div class="wi" style="border-color:var(--p)"><b>${esc(q.text)}</b><div style="font-size:12px;color:var(--m)">${esc(q.chapter)} ${q.lesson?'· '+esc(q.lesson):''}</div><div style="margin-top:6px"><button class="btn sm" data-e="${q.id}">تعديل</button> <button class="btn sm dg" data-x="${q.id}">حذف</button></div></div>`).join('');
 $$('#qlist [data-e]').forEach(b=>b.onclick=()=>editQ(+b.dataset.e));
 $$('#qlist [data-x]').forEach(b=>b.onclick=()=>{if(confirm('حذف السؤال؟')){db.questions=db.questions.filter(q=>q.id!==+b.dataset.x);save();renderAdmin()}})}

@@ -157,6 +157,17 @@ section{animation:vin .45s ease both}
 .ap{display:none}.ap.on{display:block;animation:vin .35s ease both}.ap h3{font-size:16px}
 .bx{background:var(--s2);border:1px solid var(--b);border-radius:16px;padding:14px;margin-bottom:12px}.bx h4{font-size:14px;margin-bottom:6px}
 .rw{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px dashed var(--b);font-size:13px}.rw:last-child{border:0}
+
+/* Mobile-safe upload format and question image zoom */
+.upload-schema{max-width:100%;overflow-wrap:anywhere;word-break:break-word;line-height:1.65}
+.upload-schema code{display:block;max-width:100%;margin-top:4px;padding:7px 9px;border-radius:8px;background:var(--s2);color:var(--t);font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;text-align:left;direction:ltr;unicode-bidi:plaintext;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+#v-quiz .q-image{cursor:zoom-in;touch-action:manipulation}
+.q-image-modal{position:fixed;inset:0;z-index:180;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(3,7,18,.88)}
+.q-image-modal.on{display:flex}
+.q-image-modal-card{position:relative;width:min(1000px,96vw);max-height:calc(100dvh - 32px);padding:54px 14px 14px;background:var(--s);border:1px solid var(--b);border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+#qImageZoom{display:block;max-width:100%;max-height:calc(100dvh - 112px);object-fit:contain;margin:auto;border-radius:10px;background:var(--s)}
+.q-image-close{position:absolute;top:9px;left:10px;width:38px;height:38px;display:grid;place-items:center;border-radius:50%;background:var(--d);color:#fff;font-size:27px;font-weight:800;line-height:1}
+@media(max-width:480px){.q-image-modal{padding:8px}.q-image-modal-card{width:100%;max-height:calc(100dvh - 16px);padding:48px 8px 8px;border-radius:14px}#qImageZoom{max-height:calc(100dvh - 84px)}.q-image-close{top:6px;left:7px;width:36px;height:36px}}
 </style>
 
 <style>
@@ -375,7 +386,7 @@ body.exam-active #v-quiz .qt,body.exam-active #v-quiz #opts,body.exam-active #v-
 <section id="v-quiz" class="hide"><div class="card">
 <div class="qh"><div>السؤال <span id="qn">1</span> / <span id="qt">1</span> · <span id="qch" style="color:var(--m)"></span></div><div><span id="asv" class="asv">💾 حُفظ تلقائيًا</span><span id="qscore">✅ <span id="qc">0</span> &nbsp; ❌ <span id="qw">0</span> &nbsp;</span>⏱ <span id="tm">00:00</span> &nbsp;<button class="btn sm" id="focusB" title="وضع التركيز العميق">🎯 تركيز</button></div></div>
 <div class="pg"><i id="pg" style="width:0"></i></div>
-<img id="qImage" class="q-image hide" alt="صورة توضيحية للسؤال"><div class="qt" id="qtx"></div><div id="opts"></div><div class="ex hide" id="ex"></div>
+<img id="qImage" class="q-image hide" alt="صورة توضيحية للسؤال" title="اضغط لتكبير الصورة" tabindex="0" role="button"><div class="qt" id="qtx"></div><div id="opts"></div><div class="ex hide" id="ex"></div>
 <div class="qn" style="justify-content:space-between"><button class="btn" id="prev">→ السابق</button><button class="btn ac" id="next">التالي ←</button></div>
 <hr><div class="cb"><button class="btn pr" id="fin" style="flex:1 1 150px">📊 عرض النتيجة</button><button class="btn dg" id="exit" style="flex:1 1 150px">🚪 الخروج من الامتحان</button><button class="btn" id="home2" style="flex:1 1 150px">🏠 الخروج للصفحة الرئيسية</button></div>
 </div></section>
@@ -441,7 +452,7 @@ body.exam-active #v-quiz .qt,body.exam-active #v-quiz #opts,body.exam-active #v-
 <div id="slist" style="margin-top:10px"></div>
 </div>
 <div class="ap" data-t="qs"><h3>📤 رفع أسئلة (JSON)</h3>
-<p class="sub">الصيغة: [{"text":"..","options":["أ","ب","ج","د"],"answer":"أ","explanation":"..","chapter":"..","lesson":".."}]</p>
+<p class="sub upload-schema"><span>الصيغة:</span><code dir="ltr">[{"text":"..","options":["أ","ب","ج","د"],<br>"answer":"أ","explanation":"..","chapter":"..","lesson":".."}]</code></p>
 <div class="g2"><div class="f"><label>المادة</label><select class="selSub" id="upS"></select></div><div class="f"><label>الملف</label><input type="file" id="upF" accept=".json" class="input"></div></div>
 <div class="g2"><div class="f"><label>الفصل</label><select id="upC"></select></div><div class="f"><label>الدرس</label><select id="upL"></select></div></div><div class="f"><label>📣 إشعار للطلاب عن هذا الامتحان (اكتبه بنفسك — اتركه فارغًا لو لا تريد إشعارًا)</label><textarea id="upN" placeholder="مثال: تم إضافة امتحان جديد على الفصل الأول ✨"></textarea></div><button class="btn ac" id="upB">📤 رفع</button>
 <hr><h3>➕ إضافة سؤال يدوي</h3><br>
@@ -492,7 +503,7 @@ body.exam-active #v-quiz .qt,body.exam-active #v-quiz #opts,body.exam-active #v-
 <div class="mod" id="mDet"><div class="card" style="max-width:560px;max-height:90vh;overflow:auto"><div class="qh"><h3>تفاصيل الطالب</h3><button class="btn sm" onclick="$('mDet').classList.remove('on')">✕</button></div><div id="detBody"></div></div></div>
 <div class="mod" id="mAdm"><div class="card"><h3>🛡️ دخول الأدمن</h3><br><div class="f row"><input class="input" type="password" id="ap" placeholder="كلمة المرور"><button type="button" class="btn" data-eye="ap" title="إظهار/إخفاء">👁️</button></div><div class="row"><button class="btn pr" style="flex:1" id="apGo">دخول</button><button class="btn" id="apX">إلغاء</button></div></div></div>
 <footer>Developed by <a target="_blank" href="https://wa.me/@Ma_20082"><span id="ft">Mahmoud Diab</span></a></footer>
-<div id="antiCheatBanner" role="alertdialog" aria-live="assertive"><div class="inner"><h2>⚠️ تم رصد خروجك من الشاشة!</h2><p>سيتم تسجيل محاولة غش. أُوقف تحديث واجهة المؤقت حتى تعود إلى الامتحان، والوقت الفعلي يستمر في الاحتساب.</p><p id="antiCheatCount"></p><button class="btn" id="returnExam" style="background:#fff;color:#7f1d1d;margin-top:14px">العودة إلى الامتحان</button></div></div><div class="toast" id="toast"></div>
+<div id="qImageModal" class="q-image-modal" aria-hidden="true"><div class="q-image-modal-card" role="dialog" aria-modal="true" aria-label="صورة السؤال مكبّرة"><button type="button" id="qImageClose" class="q-image-close" aria-label="إغلاق الصورة">×</button><img id="qImageZoom" alt="صورة السؤال مكبّرة"></div></div><div id="antiCheatBanner" role="alertdialog" aria-live="assertive"><div class="inner"><h2>⚠️ تم رصد خروجك من الشاشة!</h2><p>سيتم تسجيل محاولة غش. أُوقف تحديث واجهة المؤقت حتى تعود إلى الامتحان، والوقت الفعلي يستمر في الاحتساب.</p><p id="antiCheatCount"></p><button class="btn" id="returnExam" style="background:#fff;color:#7f1d1d;margin-top:14px">العودة إلى الامتحان</button></div></div><div class="toast" id="toast"></div>
 <div id="printArea" aria-hidden="true"></div><button class="ib" id="focusX" title="خروج من وضع التركيز" aria-label="خروج من وضع التركيز">✕</button>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -972,6 +983,10 @@ $('rstAll').onclick=()=>{if(!confirm('⚠️ سيتم مسح كل بيانات �
 $('admOut').onclick=()=>{clearTimeout(alt);me?go('home'):show('login')};
 $('fullOut').onclick=()=>{clearTimeout(alt);$('out').click()};
 $('admTheme').onclick=()=>{applyTh();$('mTh').classList.add('on')};
+const qImageModal=$('qImageModal'),qImageZoom=$('qImageZoom'),questionImage=$('qImage'),qImageClose=$('qImageClose');
+function closeQImage(){qImageModal.classList.remove('on');qImageModal.setAttribute('aria-hidden','true');qImageZoom.removeAttribute('src');try{questionImage.focus({preventScroll:true})}catch(e){questionImage.focus()}}
+function openQImage(){if(questionImage.classList.contains('hide')||!questionImage.src)return;qImageZoom.src=questionImage.currentSrc||questionImage.src;qImageModal.classList.add('on');qImageModal.setAttribute('aria-hidden','false');qImageClose.focus()}
+questionImage.addEventListener('click',openQImage);questionImage.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openQImage()}});qImageClose.onclick=closeQImage;qImageModal.addEventListener('click',e=>{if(e.target===qImageModal)closeQImage()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&qImageModal.classList.contains('on')){e.preventDefault();e.stopImmediatePropagation();closeQImage()}},true);
 bkInfo();
 // init
 brand();{const sc0=ls.get(KS);if(sc0)show('skel')}

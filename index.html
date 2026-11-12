@@ -518,7 +518,7 @@ function ens(sid,ch,l){const x=db.subjects.find(y=>y.id===sid);if(!x||!ch)return
 const FB={apiKey:"AIzaSyD_3jSeqKhU2stFCA53YYcAcUwOr6TMXeQ",authDomain:"bank-of-questions-c646f.firebaseapp.com",projectId:"bank-of-questions-c646f",storageBucket:"bank-of-questions-c646f.firebasestorage.app",messagingSenderId:"460598890350",appId:"1:460598890350:web:7da79d99f6449178fb7b7f"};
 let fs=null;try{if(FB&&window.firebase){firebase.initializeApp(FB);fs=firebase.firestore().collection('platform').doc('db')}}catch(e){}
 function save(){ls.set(K,JSON.stringify(db));if(fs&&!navigator.onLine)toast('⚠️ لا يوجد اتصال — لن تتزامن التغييرات مع السحابة الآن');if(fs)fs.set({d:JSON.stringify(db)}).catch(()=>{})}
-async function sync(){if(!fs)return;try{const x=await fs.get();if(x.exists){db=JSON.parse(x.data().d);norm();ls.set(K,JSON.stringify(db))}else save()}catch(e){}}
+async function sync(){if(!fs)return;try{const x=await fs.get();if(x.exists){const localPass=db&&db.settings&&db.settings.pass;const remote=JSON.parse(x.data().d);remote.settings=remote.settings||{};if(!remote.settings.pass)remote.settings.pass=localPass||SEED().settings.pass;db=remote;norm();if(!db.settings.pass)db.settings.pass=localPass||SEED().settings.pass;ls.set(K,JSON.stringify(db))}else save()}catch(e){}}
 load();
 let dev=ls.get(KD);if(!dev){dev='d'+Math.random().toString(36).slice(2)+Date.now().toString(36);ls.set(KD,dev)}
 let reviewMode=false,revBk=null,asT=0,pend='',lv=0,me=null,sub=null,Q=[],idx=0,ans={},tmr=0,t0=0,examDeadline=0,examMonotonicDeadline=0,finishing=false,examStartedAt=0,examMonotonicStart=0,examSuspicious=0,examPaused=false,examAutoSubmitted=false,examFontSize=18,chartInstance=null,cfg={type:'all',cnt:10,ord:'r',inst:1};
